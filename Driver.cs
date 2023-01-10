@@ -1,5 +1,6 @@
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
+using AngleSharp.Dom;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Firefox;
@@ -18,6 +19,13 @@ namespace CourseDB
         Phantom
     }
 
+    public enum ElementAttribute
+    {
+        TagName,
+        ClassName,
+        ID
+    }
+
     public class Driver
     {
         protected IWebDriver DriverInstance;
@@ -25,7 +33,6 @@ namespace CourseDB
         public DriverType Type;
 
         public bool IsHeadless; 
-        
 
         protected static IDriverConfig GetDriverConfig(DriverType type)
         {
@@ -65,6 +72,21 @@ namespace CourseDB
             return new ChromeDriver();
         }
 
+        public static By GetBy(string id, ElementAttribute attribute)
+        {
+            switch (attribute)
+            {
+                case ElementAttribute.ClassName:
+                    return By.ClassName(id);
+                case ElementAttribute.ID:
+                    return By.Id(id);
+                case ElementAttribute.TagName:
+                    return By.TagName(id);
+            }
+
+            return By.ClassName(id);
+        }
+
         public void OpenURL(string url)
         {
             this.DriverInstance.Navigate().GoToUrl(url); 
@@ -73,7 +95,11 @@ namespace CourseDB
         public void Initialize()
         {
             new DriverManager().SetUpDriver(Driver.GetDriverConfig(this.Type));
-            this.DriverInstance = Driver.GetDriver(this.Type, this.IsHeadless);
+        }
+
+        public IWebElement GetElement(string id, ElementAttribute attributes)
+        {
+            return this.DriverInstance.FindElement(Driver.GetBy(id, attributes));
         }
 
         public Driver(DriverType type = DriverType.Chromium, bool isHeadless = false)
@@ -89,3 +115,4 @@ namespace CourseDB
         }
     }
 }
+
