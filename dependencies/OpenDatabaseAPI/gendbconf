@@ -1,0 +1,17 @@
+#!/usr/bin/env python3
+
+import os
+import json
+
+Keys = list(["Host", "Database", "UserID", "Password", "Client"])
+
+def GetConfigMap():
+    configMap = dict()
+    for key in Keys:
+        configMap[key] = input(f"{key}: ")
+    return configMap
+
+def Main():
+    open("DatabaseConfig.json", "w").write(json.dumps(GetConfigMap()))
+
+Main()

@@ -1,0 +1,3 @@
+[submodule "OpenDatabaseAPI"]
+	path = OpenDatabaseAPI
+	url = https://github.com/rishit-singh/OpenDatabaseAPI

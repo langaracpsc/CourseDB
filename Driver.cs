@@ -23,12 +23,13 @@ namespace CourseDB
     {
         TagName,
         ClassName,
-        ID
+        ID,
+        Name
     }
 
     public class Driver
     {
-        protected IWebDriver DriverInstance;
+        public IWebDriver DriverInstance;
 
         public DriverType Type;
 
@@ -36,7 +37,7 @@ namespace CourseDB
 
         protected static IDriverConfig GetDriverConfig(DriverType type)
         {
-            switch (type)
+            switch (type) 
             {
                 case DriverType.Chromium:
                     return new ChromeConfig();
@@ -95,11 +96,28 @@ namespace CourseDB
         public void Initialize()
         {
             new DriverManager().SetUpDriver(Driver.GetDriverConfig(this.Type));
+            this.DriverInstance = Driver.GetDriver(this.Type, this.IsHeadless);
         }
+        
 
         public IWebElement GetElement(string id, ElementAttribute attributes)
         {
-            return this.DriverInstance.FindElement(Driver.GetBy(id, attributes));
+            switch (attributes)
+            {
+                case ElementAttribute.ClassName:
+                    return this.DriverInstance.FindElement(By.ClassName(id));
+                
+                case ElementAttribute.ID:
+                    return this.DriverInstance.FindElement(By.Id(id));
+                
+                case ElementAttribute.TagName:
+                    return this.DriverInstance.FindElement(By.TagName(id));
+                
+                case ElementAttribute.Name:
+                    return this.DriverInstance.FindElement(By.Name(id));
+            }
+
+            return this.DriverInstance.FindElement(By.ClassName(id));
         }
 
         public Driver(DriverType type = DriverType.Chromium, bool isHeadless = false)
@@ -115,4 +133,3 @@ namespace CourseDB
         }
     }
 }
-
