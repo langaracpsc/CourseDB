@@ -3,7 +3,7 @@
 import os
 import json
 
-Keys = list(["Host", "Database", "UserID", "Password", "Client"])
+Keys = list(["HostName", "DatabaseName", "UserID", "Password", "Client"])
 
 def GetConfigMap():
     configMap = dict()

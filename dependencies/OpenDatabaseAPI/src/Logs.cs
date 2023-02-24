@@ -44,9 +44,6 @@ namespace OpenDatabase.Logs
 			if (print)
 				Logger.ConsoleLog(message);
 
-			if (!File.Exists(Logger.DefaultLogFilePath))
-				File.CreateText(Logger.DefaultLogFilePath);
-
 			FileIO.PushToFile(message, Logger.DefaultLogFilePath);
 		}
 		

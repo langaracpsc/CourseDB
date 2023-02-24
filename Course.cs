@@ -21,6 +21,8 @@ namespace CourseDB
 
         public string Subject;
 
+        public string Term;     
+        
         public int CourseNumber;
 
         public string Section;
@@ -34,7 +36,7 @@ namespace CourseDB
         public int RptLimit;
 
         public string Type;
-
+ 
         public string Instructor;
 
         public string Room;
@@ -51,11 +53,39 @@ namespace CourseDB
         }
 
         public Record ToRecord()
-        {
+        { 
             return new Record(new string[] {
-                
+                    "Seats",
+                    "Waitlist",
+                    "CRN",
+                    "Location",
+                    "Subject",
+                    "Credits",
+                    "Title",
+                    "Fees",
+                    "RptLimit",
+                    "Type",
+                    "Instructor",
+                    "Room",
+                    "Days",
+                    "StartTime",
+                    "EndTime"
             }, new object[] {
-                
+                this.Seats,
+                this.Waitlist,
+                this.CRN,
+                this.Location,
+                this.Subject,
+                this.Credits,
+                this.Title,
+                this.Fees,
+                this.RptLimit,
+                this.Type,
+                this.Instructor,
+                this.Room,
+                this.Days,
+                this.StartTime,
+                this.EndTime
             });
         }
 
@@ -64,10 +94,10 @@ namespace CourseDB
             return JsonConvert.SerializeObject(this);
         }
 
-        public Course(int seats = 0, int waitlist = 0, int crn = 0, string location = null, string subject = null,
+        public Course(string term = null, int seats = 0, int waitlist = 0, int crn = 0, string location = null, string subject = null,
             int courseNumber = 0, string section = null, double credits = 0, string title = null, double fees = 0, int rptLimit = 0,
             string type = null, DayOfWeek[] days = null, Time startTime = null,
-            Time endTime = null, string room = null, string instructor = null)
+            Time endTime = null, string instructor = null)
         {
             this.Seats = seats;
             this.Waitlist = waitlist;
@@ -78,7 +108,6 @@ namespace CourseDB
             this.Section = section;
             this.Credits = credits;
             this.Title = title;
-            this.Days = days;
             this.StartTime = startTime;
             this.EndTime = endTime;
             this.Instructor = instructor;
@@ -91,15 +120,35 @@ namespace CourseDB
 
         public PostGRESDatabase Database;
 
-        //public DatabaseConfiguration DatabaseConfig;
+        public DatabaseConfiguration DatabaseConfig;
 
-        public void UpdateCache()
+        /// <summary>
+        /// Syncs the courses in the cache with the ones in the DB 
+        /// </summary>
+        public void UpdateDB()
         {
+            for (int x = 0; x < this.Courses.Count; x++)
+                this.Database.UpdateRecord(this.Courses[x].CRN.ToString(), this.Courses[x].ToRecord(), "");
         }
-
+           
+        /// <summary>
+        /// Adds the provided course the cache and optionally updates the DB.
+        /// </summary>
+        /// <param name="course">Course to be added.</param>
+        /// <param name="updateDB">Represents if the DB should be updated.</param>
         public void AddCourse(Course course, bool updateDB = true)
         {
             this.Courses.Add(course);
+            
+            if (updateDB)
+                this.UpdateDB();
+        }
+        
+        public CourseManager(DatabaseConfiguration databaseConfig)
+        {
+            this.DatabaseConfig = databaseConfig;
+            this.Database.Connect();
         }
     }
 }
+ 

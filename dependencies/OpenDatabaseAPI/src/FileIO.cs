@@ -43,10 +43,10 @@ namespace OpenDatabase
 			StreamWriter streamWriter = null;
 
 			try
-			{	
+			{
 				if (!File.Exists(path))
-					throw new FileNotFoundException();
-
+					File.Create(path);
+				
 				streamWriter = new StreamWriter(path, true);
 
 				streamWriter.WriteLine(str);

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Globalization;
 using System.IO;
 using System.Runtime.CompilerServices;
 using Newtonsoft.Json;
@@ -12,161 +13,7 @@ using OpenDatabaseAPI;
 
 namespace OpenDatabase
 {
-	public struct ComparisionPair<T>
-	{	
-		T Left,
-	  		Right;	 
-		
-		public string GetComparisionString(string operators)
-		{
-			return $"{Convert.ToString(this.Left)}{operators}{Convert.ToString(this.Right)}";
-		}
 
-		public ComparisionPair(T left, T right)	
-		{
-			this.Left = left;
-			this.Right = right;
-		}
-	}
-
-	/// <summary>
-	/// Stores a database record's keys and values. 
-	/// </summary>
-	public struct Record
-	{
-		public string[] Keys;
-		
-		public object[] Values;
-
-		public Record(string[] keys, object[] values)
-		{
-			this.Keys = keys;
-			this.Values = values; 
-		}
-	}
-
-	public class QueryBuilder
-	{
-		public enum Command
-		{
-			Insert,
-			Update,
-			Alter,
-			Drop
-		}
-
-		public enum SubCommand
-		{
-			Set,
-			Where		
-		}
-
-		public static string[] CommandStrings = new string[] {
-			"INSERT",
-			"UPDATE",
-			"ALTER",
-			"DROP"
-		};
-
-		public static string[] SubCommandStrings = new string[] {
-			"SET",
-			"WHERE"
-		};
-
-		public static string GetValueString<T>(T value)
-		{
-			string valueString = null;
-	
-			Type valueType = value.GetType();
-			
-			 if (valueType == typeof(int))
-				valueString = Convert.ToString(value);
-			 else if (valueType == typeof(char))
-				valueString = $"\'{Convert.ToString(value)}\'";
-			 
-			 else if (valueType == typeof(string))
-				valueString = $"\'{Convert.ToString(value)}\'";
-			 
-			 else if (valueType == typeof(bool))
-				valueString = (value.Equals(true)) ? "TRUE" : "FALSE";
-			 
-			 else;
-
-			 return valueString;
-		}
-
-		public static string GetValueFunctionString(Hashtable data)
-		{
-			int size = data.Keys.Count;
-	
-			string valueFunctionString = "VALUES(";
-		
-			string[] keys = new string[size];
-
-			data.Keys.CopyTo(keys, 0);
-
-			for (int x = 0; x < size; x++)
-				if (x == (size - 1))
-					valueFunctionString += $"{QueryBuilder.GetValueString(data[keys[x]])})";
-				else
-					valueFunctionString += $"{QueryBuilder.GetValueString(data[keys[x]])}, ";
-
-			return valueFunctionString;
-		}
-
-		public static string GetValueFunctionString(Record data)
-		{
-			int size = data.Values.Length;
-	
-			string valueFunctionString = "VALUES(";
-
-			for (int x = 0; x < size; x++)
-				if (x == (size - 1))
-					valueFunctionString += $"{QueryBuilder.GetValueString(data.Values[x])})";
-				else
-					valueFunctionString += $"{QueryBuilder.GetValueString(data.Values[x])}, ";
-
-			return valueFunctionString;
-		}
-		
-		/// <summary>
-		///	Gets the SQL SET function string. 
-		/// </summary>
-		/// <param name="record"> Record instance </param>
-		/// <returns></returns>
-		public static string GetSetString(Record record)
-		{
-			string setString = "SET ";
-			
-			int size = record.Keys.Length;
-	
-			for (int x = 0; x < size - 1; x++)
-				setString += $"{record.Keys[x]}={QueryBuilder.GetValueString(record.Values[x])}, ";
-
-			setString += $"{record.Keys[size - 1]}={QueryBuilder.GetValueString(record.Values[size - 1])}";
-			
-			return setString;
-		}
-
-		public static string GetInsertQuery(string tableName, Hashtable data)
-		{
-			string queryString = null;
-
-			queryString  = $"{QueryBuilder.CommandStrings[(int)QueryBuilder.Command.Insert]} INTO {tableName} {QueryBuilder.GetValueFunctionString(data)};";
-
-			return queryString;
-		}
-
-		public static string GetInsertQuery(string tableName, Record data)
-		{
-			return $"{QueryBuilder.CommandStrings[(int)QueryBuilder.Command.Insert]} INTO {tableName} {QueryBuilder.GetValueFunctionString(data)};";
-		}
-
-		public static string GetUpdateQuery(string tableName, Record data)
-		{
-			return $"UPDATE {tableName} {QueryBuilder.GetSetString(data)}";
-		}
-	}
 
 	/// <summary>
 	/// Handles database connectivity, data fetching and editing.		
@@ -344,7 +191,7 @@ namespace OpenDatabase
 		/// <param name="tableName"> Table name. </param>
 		public override bool UpdateRecord(string ID, Record record, string tableName)
 		{
-			string query = $"UPDATE {tableName} {QueryBuilder.GetSetString(record)} WHERE ID='{ID}';";
+			string query = $"UPDATE {tableName} SET {QueryBuilder.GetSetString(record)} WHERE ID='{ID}';";
 
 			Logger.ConsoleLog(query);
 
@@ -353,7 +200,21 @@ namespace OpenDatabase
 						
 			return true;	
 		}
+
+		public override bool UpdateRecord(object id, Record record, string table)
+		{
+			try
+			{
+				this.ExecuteQuery(QueryBuilder.GetUpdateQuery(id, table, record));
+			}
+			catch (Exception e)
+			{
+				return false; 
+			}
 			
+			return true; 
+		}
+
 		public int GetFieldCount(string tableName)
 		{
 			return Convert.ToInt32(this.FetchQueryData($"SELECT COUNT(*) FROM {tableName};")[0].Values[0]);

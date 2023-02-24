@@ -136,7 +136,10 @@ namespace OpenDatabase
 			this.Password = configHash["Password"].ToString();
 			this.HostName = configHash["HostName"].ToString();
 			this.DatabaseName = configHash["DatabaseName"].ToString();
-			this.IntegratedSecurity = (configHash["IntegratedSecurity"].ToString() == "True") ? true : false;
+			if (configHash["IntegratedSecurity"] != null)
+				this.IntegratedSecurity = (configHash["IntegratedSecurity"].ToString() == "True") ? true : false;
+			else
+				this.IntegratedSecurity = false;
 		}
 	}
 
@@ -163,6 +166,11 @@ namespace OpenDatabase
         public virtual bool UpdateRecord(string id, Record record, string table)
         {
             return true;
+        }
+
+        public virtual bool UpdateRecord(object id, Record record, string table)
+        {
+	        return true;
         }
 
         public virtual Record[] FetchQueryData(string query, string tableName)

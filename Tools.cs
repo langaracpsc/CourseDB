@@ -8,6 +8,12 @@ namespace CourseDB;
 
 public class Tools
 {
+    public static bool InRange(long val, long min, long max)
+    {
+        return (val >= min && val <  max);
+    }
+ 
+    
     public static bool IsElement<T>(T val, T[] array)
     {
         for (int x = 0; x < array.Length; x++)
@@ -60,7 +66,7 @@ public class Tools
     public static char[] AsciiRange(int start, int end)
     {
         List<char> ascii = new List<char>();
-        
+      
         for (int x = start; x <= end; x++)
             ascii.Add(Convert.ToChar(x));
 
@@ -103,5 +109,44 @@ public class Tools
             
         return days.ToArray();
     }
-}
 
+    
+    /// <summary>
+    /// Replaces the specified substring with the provided delimiter. 
+    /// </summary>
+    /// <param name="str"></param>
+    /// <param name="subStr"></param>
+    /// <param name="alt"></param>
+    /// <returns></returns>
+    public static string ReplaceSubString(string str, string subStr, string delimiter)
+    {
+        string altString = null;
+
+        for (int x = 0; x < str.Length; x++)
+        {
+            if (str.Substring(x, subStr.Length) == subStr)
+            {
+                altString += delimiter;
+                x += subStr.Length - 1;
+
+                Console.WriteLine(x);
+            }
+
+            altString += str[x]; 
+        }
+
+        return altString;
+    }
+
+    public static string[] BulkReplace(string[] strings, string subStr, string delimiter)
+    {
+        for (int x = 0; x < strings.Length; x++)
+            strings[x] = Tools.ReplaceSubString(strings[x], subStr, delimiter);
+
+        return strings;
+    }
+}   
+
+ 
+  
+  
