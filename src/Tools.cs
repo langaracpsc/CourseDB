@@ -75,7 +75,7 @@ public class Tools
 
     public static bool IsNumber(string str)
     {
-        char[] nums = Tools.AsciiRange(48, 56);
+        char[] nums = Tools.AsciiRange(48, 57);
         
         for (int x = 0; x < str.Length; x++)
             if (Tools.LinearSearch(str[x], nums) == -1)
@@ -114,30 +114,42 @@ public class Tools
     /// <summary>
     /// Replaces the specified substring with the provided delimiter. 
     /// </summary>
-    /// <param name="str"></param>
-    /// <param name="subStr"></param>
-    /// <param name="alt"></param>
-    /// <returns></returns>
+    /// <param name="str">Source string.</param>
+    /// <param name="subStr">Substring to be replaced.</param>
+    /// <param name="delimiter">Substring to replace with.</param>
+    /// <returns>Modified string.</returns>
     public static string ReplaceSubString(string str, string subStr, string delimiter)
     {
         string altString = null;
 
-        for (int x = 0; x < str.Length; x++)
+        int x;
+        
+        for (x = 0; x < str.Length - subStr.Length; x++)
         {
             if (str.Substring(x, subStr.Length) == subStr)
             {
                 altString += delimiter;
-                x += subStr.Length - 1;
+                x += subStr.Length;
 
-                Console.WriteLine(x);
+                Console.WriteLine($"in: {x}");
             }
-
-            altString += str[x]; 
+            
+            altString += str[x];
         }
+
+        for (; x < str.Length; x++)
+            altString += str[x];
 
         return altString;
     }
-
+    
+    /// <summary>
+    /// Replaces the substring in the provided strings with a delimiter.
+    /// </summary>
+    /// <param name="strings">Strings to be modified.</param>
+    /// <param name="subStr">Substring to be replaced.</param>
+    /// <param name="delimiter">Substring to replace with.</param>
+    /// <returns>Modified strings.</returns>
     public static string[] BulkReplace(string[] strings, string subStr, string delimiter)
     {
         for (int x = 0; x < strings.Length; x++)
@@ -146,7 +158,3 @@ public class Tools
         return strings;
     }
 }   
-
- 
-  
-  

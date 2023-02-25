@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.Versioning;
+using System.Text.Json.Serialization;
 using OpenDatabase;
 using OpenDatabaseAPI;
 using Newtonsoft.Json;
@@ -40,7 +41,7 @@ namespace CourseDB
         public string Instructor;
 
         public string Room;
-        
+       
         public DayOfWeek[] Days;
 
         public Time StartTime;
@@ -99,15 +100,19 @@ namespace CourseDB
             string type = null, DayOfWeek[] days = null, Time startTime = null,
             Time endTime = null, string instructor = null)
         {
+            this.Term = term;
             this.Seats = seats;
             this.Waitlist = waitlist;
             this.CRN = crn;
+            this.Days = days;
             this.Location = location;
             this.Subject = subject;
             this.CourseNumber = courseNumber;
             this.Section = section;
             this.Credits = credits;
             this.Title = title;
+            this.Type = type;
+            this.Fees = fees;
             this.StartTime = startTime;
             this.EndTime = endTime;
             this.Instructor = instructor;
@@ -147,6 +152,7 @@ namespace CourseDB
         public CourseManager(DatabaseConfiguration databaseConfig)
         {
             this.DatabaseConfig = databaseConfig;
+            this.Database = new PostGRESDatabase(this.DatabaseConfig);
             this.Database.Connect();
         }
     }

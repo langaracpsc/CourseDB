@@ -36,7 +36,103 @@ namespace CourseDB
 
         protected async Task FetchRawHTMLAsync()
         {
-            this.HTMLDump = await this.Client.GetAsync(this.BaseURL).Result.Content.ReadAsStringAsync();
+            this.HTMLDump = this.Client.GetAsync(this.BaseURL).Result.Content.ReadAsStringAsync().Result;
+        }
+        protected List<string[]> GetInnerStrings(HtmlNode node)
+        {
+            HtmlNodeCollection collection = node.SelectNodes("//table/tr"),
+                innerCollection;
+
+            List<string[]> innerStrings = new List<string[]>();
+            
+            List<string> innerStringTemp = new List<string>();
+
+            for (int x = 0; x < collection.Count; x++)
+            {
+                innerCollection = collection[x].SelectNodes("td");
+                
+                for (int y = 0; y < innerCollection.Count; y++)
+                    innerStringTemp.Add(innerCollection[y] .InnerText);
+                
+                innerStrings.Add(innerStringTemp.ToArray());
+                innerStringTemp.Clear();
+            }
+
+            return innerStrings;
+        }
+
+        protected static void PrintArray<T>(T[] array, string delimiter="\n")
+        {
+            for (int x = 0; x < array.Length; x++)
+                Console.Write($"{x.ToString()}: {array[x]}{delimiter}");
+        }
+
+        protected Course ParseNode(string[] entries)
+        {
+            string[] splitArray = entries;
+
+            Time[] timeRange = Tools.GetTimeRange(splitArray[14]);
+
+            int[] ints = new int[8];
+
+            splitArray = Tools.BulkReplace(splitArray, "&nbsp;", " ");
+
+            for (int x = 0, count = 0; x < splitArray.Length; x++)
+            {
+                if (Tools.IsNumber(splitArray[x]))
+                    Int32.TryParse(splitArray[x], out ints[count++]);
+                else if (splitArray[x] == "&nbsp;")
+                    ints[count++] = 0;
+            }
+
+            double fees, credits;
+
+            int index;
+
+            Double.TryParse(splitArray[10].Substring(index = splitArray[10].IndexOf("$") + 1, splitArray[10].Length - index), out fees);
+            Double.TryParse(splitArray[8], out credits);
+
+            Console.WriteLine($"days: {Tools.GetDaysFromScheduleString(splitArray[13]).Length}");
+                
+            return new Course(Term.GetCurrent().ToString(), 
+                ints[0],
+                    ints[1],
+                    ints[3],
+                    splitArray[17],
+                    splitArray[5],
+                    ints[4],
+                    splitArray[7],
+                    credits,
+                    splitArray[9],
+                    fees,
+                    ints[5],
+                    splitArray[12],
+                    Tools.GetDaysFromScheduleString(splitArray[13]), 
+                    timeRange[0],
+                    timeRange[1],
+                    splitArray[18]
+                );
+        }
+        protected Course[] ParseNodes()
+        {
+            List<string[]> strings = this.GetInnerStrings(this.Document.DocumentNode);
+            
+            Course[] courses = new Course[strings.Count];
+
+
+            for (int x = 0; x < strings.Count; x++)
+                try
+                {
+                    courses[x] = this.ParseNode(strings[x]);
+
+                    Console.WriteLine(courses[x].ToJson());
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                }
+
+            return courses;
         }
 
         public Course[] GetCourseList()
@@ -50,13 +146,8 @@ namespace CourseDB
             }
     
             this.Document.LoadHtml(this.HTMLDump);
-            
-            HtmlNodeCollection nodes = this.Document.DocumentNode.SelectNodes("//table/tr");
 
-            for (int x = 0; x < nodes.Count; x++)
-                Console.WriteLine(nodes[x].InnerText);
-                
-            return null;
+            return this.ParseNodes();
         }
 
         public CourseScraper(Term term, DatabaseConfiguration config)
