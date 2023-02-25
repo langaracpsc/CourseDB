@@ -40,8 +40,6 @@ namespace CourseDB
 
         public string Instructor;
 
-        public string Room;
-
         public DayOfWeek[] Days;
 
         public Time StartTime;
@@ -52,43 +50,47 @@ namespace CourseDB
         {
             return new Course();
         }
-
+        
         public Record ToRecord()
         {
             return new Record(new string[]
             {
+                "Term",
                 "Seats",
                 "Waitlist",
                 "CRN",
-                "Location",
+                "Room",
                 "Subject",
+                "CourseNumber",
+                "Section",
                 "Credits",
                 "Title",
                 "Fees",
                 "RptLimit",
                 "Type",
                 "Instructor",
-                "Room",
                 "Days",
                 "StartTime",
                 "EndTime"
             }, new object[]
             {
+                this.Term.ToString(),
                 this.Seats,
                 this.Waitlist,
                 this.CRN,
                 this.Location,
                 this.Subject,
+                this.CourseNumber,
+                this.Section,
                 this.Credits,
                 this.Title,
                 this.Fees,
                 this.RptLimit,
                 this.Type,
                 this.Instructor,
-                this.Room,
-                this.Days,
-                this.StartTime,
-                this.EndTime
+                Tools.GetDaysString(this.Days),
+                this.StartTime.ToString(),
+                this.EndTime.ToString()
             });
         }
 
@@ -110,7 +112,6 @@ namespace CourseDB
                     this.RptLimit == 0 &&
                     this.Type == null &&
                     this.Instructor == null &&
-                    this.Room == null &&
                     this.Days == null &&
                     this.StartTime == null &&
                     this.EndTime == null);

@@ -130,8 +130,6 @@ public class Tools
             {
                 altString += delimiter;
                 x += subStr.Length;
-
-                Console.WriteLine($"in: {x}");
             }
             
             altString += str[x];
@@ -157,4 +155,15 @@ public class Tools
 
         return strings;
     }
+
+    public static string GetDaysString(DayOfWeek[] days)
+    {
+        string dayString = null;
+
+        for (int x = 0; x < days.Length; x++)
+            dayString += Convert.ToString((int)days[x]);
+
+        return dayString;
+    }
 }   
+ 

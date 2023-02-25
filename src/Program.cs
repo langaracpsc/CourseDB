@@ -73,7 +73,10 @@ namespace CourseDB
             Course[] courses = scaper.GetCourseList();
 
 
-            FileIO.Write(JsonConvert.SerializeObject(courses), "courseDump.json");
+            //FileIO.Write(JsonConvert.SerializeObject(courses), "courseDump.json");
+            
+            
+            Console.WriteLine(JsonConvert.SerializeObject(courses[57].ToRecord()));
         }
     }
 }

@@ -16,14 +16,21 @@ public class Time : IComparable<Time>
         if (split.Length < 2)
             return new Time();
         
-        Console.WriteLine($"{split[0]}:{split[1]}");
-        
         for (int x = 0; x < split.Length; x++)
             if (split[x] == "00")
                 split[x] = "0";
     
         return new Time(Convert.ToInt32(split[0]), Convert.ToInt32(split[1])); 
     }
+
+    public static Time FromSQLString(string sqlString)
+    {
+        string[] splitStrings;
+        
+        return new Time(Convert.ToInt32((splitStrings = sqlString.Split(':'))[0]), 
+            Convert.ToInt32(splitStrings[1]),
+            Convert.ToInt32(splitStrings[2]));
+    } 
 
     public int CompareTo(Time time)
     {
@@ -42,7 +49,12 @@ public class Time : IComparable<Time>
         
         return 0; 
     }
-    
+
+    public override string ToString()
+    {
+        return $"{this.Hour}:{this.Minute}:{this.Second}";
+    }
+
     public Time(int hour = 0, int minute = 0, int second = 0)
     {
         this.Hour = hour;
