@@ -13,6 +13,9 @@ public class Time : IComparable<Time>
     {
         string[] split = Tools.DivideString(timeString, 2);
 
+        if (split.Length < 2)
+            return new Time();
+        
         Console.WriteLine($"{split[0]}:{split[1]}");
         
         for (int x = 0; x < split.Length; x++)

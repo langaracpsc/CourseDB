@@ -71,9 +71,9 @@ namespace CourseDB
             CourseScraper scaper = new CourseScraper(Term.GetCurrent(), DatabaseConfiguration.LoadFromFile("DatabaseConfig.json"));
 
             Course[] courses = scaper.GetCourseList();
-            
-            for (int x = 0; x < courses.Length; x++)
-                Console.WriteLine(courses[x].ToJson());              
+
+
+            FileIO.Write(JsonConvert.SerializeObject(courses), "courseDump.json");
         }
     }
 }

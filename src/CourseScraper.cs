@@ -67,22 +67,38 @@ namespace CourseDB
                 Console.Write($"{x.ToString()}: {array[x]}{delimiter}");
         }
 
+        protected bool IsRecord(string[] array) 
+        {
+            for (int x = 0; x < array.Length; x++)
+                if (Tools.IsNumber(array[x]))
+                    return true;
+            return false;
+        }
+
         protected Course ParseNode(string[] entries)
         {
             string[] splitArray = entries;
 
+            if (splitArray.Length < 18 || !this.IsRecord(splitArray))
+                return new Course();
+            
             Time[] timeRange = Tools.GetTimeRange(splitArray[14]);
 
-            int[] ints = new int[8];
+            List<int> ints = new List<int>();
 
-            splitArray = Tools.BulkReplace(splitArray, "&nbsp;", " ");
+            int temp;
 
-            for (int x = 0, count = 0; x < splitArray.Length; x++)
+            splitArray = Tools.BulkReplace(splitArray, "&nbsp;", " "); // removes all the nulls from entries
+
+            for (int x = 0; x < splitArray.Length; x++) // Isolates the integers into one array.
             {
                 if (Tools.IsNumber(splitArray[x]))
-                    Int32.TryParse(splitArray[x], out ints[count++]);
-                else if (splitArray[x] == "&nbsp;")
-                    ints[count++] = 0;
+                {
+                    Int32.TryParse(splitArray[x], out temp);
+                    ints.Add(temp);
+                }
+                else if (splitArray[x] == "&nbsp;" || splitArray[x] == "-")
+                    ints.Add(0) ;
             }
 
             double fees, credits;
@@ -92,9 +108,7 @@ namespace CourseDB
             Double.TryParse(splitArray[10].Substring(index = splitArray[10].IndexOf("$") + 1, splitArray[10].Length - index), out fees);
             Double.TryParse(splitArray[8], out credits);
 
-            Console.WriteLine($"days: {Tools.GetDaysFromScheduleString(splitArray[13]).Length}");
-                
-            return new Course(Term.GetCurrent().ToString(), 
+            return new Course(this.CourseTerm.ToString(), 
                 ints[0],
                     ints[1],
                     ints[3],
@@ -113,24 +127,19 @@ namespace CourseDB
                     splitArray[18]
                 );
         }
+        
         protected Course[] ParseNodes()
         {
             List<string[]> strings = this.GetInnerStrings(this.Document.DocumentNode);
             
             Course[] courses = new Course[strings.Count];
 
-
+            Course prev;
+            
+            
             for (int x = 0; x < strings.Count; x++)
-                try
-                {
-                    courses[x] = this.ParseNode(strings[x]);
-
-                    Console.WriteLine(courses[x].ToJson());
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e.Message);
-                }
+                if (!(prev = this.ParseNode(strings[x])).IsNull())
+                    courses[x] = prev;
 
             return courses;
         }

@@ -22,8 +22,8 @@ namespace CourseDB
 
         public string Subject;
 
-        public string Term;     
-        
+        public string Term;
+
         public int CourseNumber;
 
         public string Section;
@@ -37,11 +37,11 @@ namespace CourseDB
         public int RptLimit;
 
         public string Type;
- 
+
         public string Instructor;
 
         public string Room;
-       
+
         public DayOfWeek[] Days;
 
         public Time StartTime;
@@ -54,24 +54,26 @@ namespace CourseDB
         }
 
         public Record ToRecord()
-        { 
-            return new Record(new string[] {
-                    "Seats",
-                    "Waitlist",
-                    "CRN",
-                    "Location",
-                    "Subject",
-                    "Credits",
-                    "Title",
-                    "Fees",
-                    "RptLimit",
-                    "Type",
-                    "Instructor",
-                    "Room",
-                    "Days",
-                    "StartTime",
-                    "EndTime"
-            }, new object[] {
+        {
+            return new Record(new string[]
+            {
+                "Seats",
+                "Waitlist",
+                "CRN",
+                "Location",
+                "Subject",
+                "Credits",
+                "Title",
+                "Fees",
+                "RptLimit",
+                "Type",
+                "Instructor",
+                "Room",
+                "Days",
+                "StartTime",
+                "EndTime"
+            }, new object[]
+            {
                 this.Seats,
                 this.Waitlist,
                 this.CRN,
@@ -95,7 +97,26 @@ namespace CourseDB
             return JsonConvert.SerializeObject(this);
         }
 
-        public Course(string term = null, int seats = 0, int waitlist = 0, int crn = 0, string location = null, string subject = null,
+        public bool IsNull()
+        {
+            return (this.Seats == 0 &&
+                    this.Waitlist == 0 &&
+                    this.CRN == null &&
+                    this.Location == null &&
+                    this.Subject == null &&
+                    this.Credits == 0 &&
+                    this.Title == null &&
+                    this.Fees == 0 &&
+                    this.RptLimit == 0 &&
+                    this.Type == null &&
+                    this.Instructor == null &&
+                    this.Room == null &&
+                    this.Days == null &&
+                    this.StartTime == null &&
+                    this.EndTime == null);
+        }
+
+    public Course(string term = null, int seats = 0, int waitlist = 0, int crn = 0, string location = null, string subject = null,
             int courseNumber = 0, string section = null, double credits = 0, string title = null, double fees = 0, int rptLimit = 0,
             string type = null, DayOfWeek[] days = null, Time startTime = null,
             Time endTime = null, string instructor = null)
