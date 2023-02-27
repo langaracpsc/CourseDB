@@ -11,7 +11,7 @@ namespace CourseDB
     {
         protected HttpClient Client;
 
-        protected CourseManager Manager;
+        public CourseManager Manager;
         
         protected string HTMLDump;
 
