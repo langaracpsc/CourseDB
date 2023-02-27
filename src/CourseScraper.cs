@@ -118,9 +118,6 @@ namespace CourseDB
             
             Course retCourse = new Course();
 
-            try
-            {
-            
                 if (ints[4] > 5000) // inconsistent record exception
                 {
                     retCourse = new Course(this.CourseTerm.ToString(),
@@ -163,12 +160,6 @@ namespace CourseDB
                         splitArray[18]
                     );
                 }
-            }
-            catch (Exception e)
-            {
-                PrintArray<int>(ints.ToArray());
-                Thread.Sleep(1000000);
-            }
 
 
             return retCourse;
