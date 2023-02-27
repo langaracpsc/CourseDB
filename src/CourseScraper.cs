@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Runtime.Serialization;
 using HtmlAgilityPack;
 using OpenDatabase;
 using OpenQA.Selenium;
@@ -201,16 +202,15 @@ namespace CourseDB
             return this.ParseNodes();
         }
 
-        public void SyncDB()
+        public void SyncDB(bool update = true)
         {
             Course[] courses = this.GetCourseList();
-           
-            Console.WriteLine($"length: {courses.Length}");            
             
             for (int x = 0; x < courses.Length; x++)
                 this.Manager.AddCourse(courses[x], false);
-            
-            this.Manager.UpdateDB();
+           
+            if (update)
+                this.Manager.UpdateDB();
         }
 
         public CourseScraper(Term term, DatabaseConfiguration config)
