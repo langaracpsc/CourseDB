@@ -9,15 +9,15 @@ using OpenDatabase;
 
 namespace CourseDB
 {
-    class Program
-    {
-        static void Main(string[] args)
-        {
-            CourseScraper scraper = new CourseScraper(Term.GetCurrent(),
-                DatabaseConfiguration.LoadFromFile("DatabaseConfig.json"));
-            Course[] courses = scraper.GetCourseList();
-         
-            scraper.SyncDB();
-        }
-    }
+    // class Program
+    // {
+    //     static void Main(string[] args)
+    //     {
+    //         CourseScraper scraper = new CourseScraper(Term.GetCurrent(),
+    //             DatabaseConfiguration.LoadFromFile("DatabaseConfig.json"));
+    //         Course[] courses = scraper.GetCourseList();
+    //      
+    //         scraper.SyncDB();
+    //     }
+    // }
 }
