@@ -163,6 +163,11 @@ namespace OpenDatabase
             return true;
         }
 
+        public virtual bool InsertRecord(Record record, string table, bool specify)
+        {
+            return true;
+        }
+
         public virtual bool UpdateRecord(string id, Record record, string table)
         {
             return true;

@@ -143,6 +143,8 @@ namespace OpenDatabase
 			 else if (valueType == typeof(bool))
 				valueString = (value.Equals(true)) ? "TRUE" : "FALSE";
 			 
+			 else if (valueType == typeof(double))
+				 valueString = value.ToString();
 			 else;
 
 			 return valueString;
@@ -214,6 +216,18 @@ namespace OpenDatabase
 			return setString;
 		}
 
+
+		public static string GetColumnTuple(string[] strings)
+		{
+			string tuple = $"(";
+
+			for (int x = 0; x < strings.Length - 1; x++)
+				tuple += $"{strings[x]},";
+			tuple += $"{strings[strings.Length - 1]})";
+
+			return tuple;
+		}
+
 		public static string GetInsertQuery(string tableName, Hashtable data)
 		{
 			string queryString = null;
@@ -223,9 +237,9 @@ namespace OpenDatabase
 			return queryString;
 		}
 
-		public static string GetInsertQuery(string tableName, Record data)
+		public static string GetInsertQuery(string tableName, Record data, bool specify = false)
 		{
-			return $"{QueryBuilder.CommandStrings[(int)QueryBuilder.Command.Insert]} INTO {tableName} {QueryBuilder.GetValueFunctionString(data)};";
+			return $"{QueryBuilder.CommandStrings[(int)QueryBuilder.Command.Insert]} INTO {tableName} {((specify) ? QueryBuilder.GetColumnTuple(data.Keys) : null)} {QueryBuilder.GetValueFunctionString(data)};";
 		}
 		
 		/// <summary>

@@ -7,6 +7,10 @@ public enum TermType
     Fall
 }
 
+
+/// <summary>
+/// Stores a pair of an year and term
+/// </summary>
 public class Term
 {
     public int Year;

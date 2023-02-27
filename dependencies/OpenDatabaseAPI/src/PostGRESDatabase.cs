@@ -168,7 +168,25 @@ namespace OpenDatabaseAPI
             
             return true;
         }
+        
+        public override bool InsertRecord(Record record, string table, bool specify)
+        {
+            try
+            {
+                string query;
+                this.ExecuteQuery(query = QueryBuilder.GetInsertQuery(table, record, specify)); 
+                Console.WriteLine(query);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return false;
+            }
+            
+            return true;
+        }
 
+        
         public override Record[] FetchQueryData(string query, string tableName)
         {
             NpgsqlCommand command = null;

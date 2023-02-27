@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Runtime.CompilerServices;
 using System.Security.AccessControl;
 using AngleSharp.Text;
 using Npgsql.PostgresTypes;
@@ -84,9 +85,10 @@ public class Tools
         return true;
     }
 
+    
     public static Time[] GetTimeRange(string str)
     {
-        string[] splitString = str.Split('-');
+        string[] splitString = str.Split('-'); 
         
         Console.WriteLine(splitString.Length);
 
@@ -123,6 +125,9 @@ public class Tools
         string altString = null;
 
         int x;
+        
+        if (str == subStr)
+            return delimiter;
         
         for (x = 0; x < str.Length - subStr.Length; x++)
         {
@@ -164,6 +169,25 @@ public class Tools
             dayString += Convert.ToString((int)days[x]);
 
         return dayString;
+    }
+
+    public static DayOfWeek[] GetDaysFromDayString(string days)
+    {
+        List<DayOfWeek> dayStack = new List<DayOfWeek>();
+        DayOfWeek day = 0;
+        
+        for (int x = 0; x < days.Length; x++)
+            if (!dayStack.Contains((day = (DayOfWeek)Convert.ToInt32(days[x]))))
+                dayStack.Add(day);
+
+        return dayStack.ToArray();
+    }
+
+    public static void ListSwap<T>(ref List<T> list, int index, int index1)
+    {
+        T temp = list[index];
+        list[index] = list[index1];
+        list[index1] = temp; 
     }
 }   
  

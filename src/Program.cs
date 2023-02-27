@@ -2,13 +2,10 @@
 
 using System.Globalization;
 using System.Runtime.CompilerServices;
-using OpenQA.Selenium;
-using OpenQA.Selenium.DevTools.V108.WebAudio;
+using System.Runtime.InteropServices.ComTypes;
 using HtmlAgilityPack;
 using Newtonsoft.Json;
 using OpenDatabase;
-using OpenQA.Selenium.DevTools.V106.Runtime;
-using OpenQA.Selenium.DevTools.V107.Console;
 
 namespace CourseDB
 {
@@ -30,7 +27,7 @@ namespace CourseDB
                 innerCollection = collection[x].SelectNodes("td");
                 
                 for (int y = 0; y < innerCollection.Count; y++)
-                    innerStringTemp.Add(innerCollection[y] .InnerText);
+                    innerStringTemp.Add(innerCollection[y].InnerText);
                 
                 innerStrings.Add(innerStringTemp.ToArray());
                 innerStringTemp.Clear();
@@ -66,20 +63,14 @@ namespace CourseDB
 
             return courses;
         }
+
         static void Main(string[] args)
         {
-            CourseScraper scaper = new CourseScraper(Term.GetCurrent(), DatabaseConfiguration.LoadFromFile("DatabaseConfig.json"));
-
-            Course[] courses = scaper.GetCourseList();
-
-
-            //FileIO.Write(JsonConvert.SerializeObject(courses), "courseDump.json");
-            
-            
-            Console.WriteLine(JsonConvert.SerializeObject(courses[57].ToRecord()));
+            CourseScraper scraper = new CourseScraper(Term.GetCurrent(),
+                DatabaseConfiguration.LoadFromFile("DatabaseConfig.json"));
+            Course[] courses = scraper.GetCourseList();
+         
+            scraper.SyncDB();
         }
     }
 }
-
-
-

@@ -22,8 +22,10 @@ namespace CourseDB
         
         protected static string DumpCacheFile = "HtmlTableDump";
 
-        protected HtmlDocument Document;
-
+        public HtmlDocument Document;
+        
+        public List<string[]> InnerStrings;
+        
         protected void DumpHTML()
         {
             FileIO.Write(this.HTMLDump, CourseScraper.DumpCacheFile);
@@ -38,14 +40,14 @@ namespace CourseDB
         {
             this.HTMLDump = this.Client.GetAsync(this.BaseURL).Result.Content.ReadAsStringAsync().Result;
         }
-        protected List<string[]> GetInnerStrings(HtmlNode node)
+        public List<string[]> GetInnerStrings(HtmlNode node)
         {
             HtmlNodeCollection collection = node.SelectNodes("//table/tr"),
                 innerCollection;
 
             List<string[]> innerStrings = new List<string[]>();
-            
             List<string> innerStringTemp = new List<string>();
+            
 
             for (int x = 0; x < collection.Count; x++)
             {
@@ -58,7 +60,7 @@ namespace CourseDB
                 innerStringTemp.Clear();
             }
 
-            return innerStrings;
+            return (this.InnerStrings = innerStrings);
         }
 
         protected static void PrintArray<T>(T[] array, string delimiter="\n")
@@ -75,13 +77,11 @@ namespace CourseDB
             return false;
         }
 
-        protected Course ParseNode(string[] entries)
+        public Course ParseNode(string[] splitArray)
         {
-            string[] splitArray = entries;
-
             if (splitArray.Length < 18 || !this.IsRecord(splitArray))
                 return new Course();
-            
+
             Time[] timeRange = Tools.GetTimeRange(splitArray[14]);
 
             List<int> ints = new List<int>();
@@ -97,35 +97,81 @@ namespace CourseDB
                     Int32.TryParse(splitArray[x], out temp);
                     ints.Add(temp);
                 }
-                else if (splitArray[x] == "&nbsp;" || splitArray[x] == "-")
-                    ints.Add(0) ;
+                else if (splitArray[x] == "&nbsp;" || splitArray[x] == "-" || splitArray[x] == " " || splitArray[x] == "N/A")
+                    ints.Add(0);
+                
+                else if (splitArray[x] == "Cancel")
+                    ints.Add(-1);
             }
 
             double fees, credits;
 
             int index;
 
-            Double.TryParse(splitArray[10].Substring(index = splitArray[10].IndexOf("$") + 1, splitArray[10].Length - index), out fees);
+            Double.TryParse(
+                splitArray[10].Substring(index = splitArray[10].IndexOf("$") + 1, splitArray[10].Length - index),
+                out fees);
             Double.TryParse(splitArray[8], out credits);
 
-            return new Course(this.CourseTerm.ToString(), 
-                ints[0],
-                    ints[1],
-                    ints[3],
-                    splitArray[17],
-                    splitArray[5],
-                    ints[4],
-                    splitArray[7],
-                    credits,
-                    splitArray[9],
-                    fees,
-                    ints[5],
-                    splitArray[12],
-                    Tools.GetDaysFromScheduleString(splitArray[13]), 
-                    timeRange[0],
-                    timeRange[1],
-                    splitArray[18]
-                );
+            Console.WriteLine($"ints: {ints.Count}");
+
+            
+            Course retCourse = new Course();
+
+            try
+            {
+            
+                if (ints[4] > 5000) // inconsistent record exception
+                {
+                    retCourse = new Course(this.CourseTerm.ToString(),
+                        ints[1],
+                        ints[2],
+                        ints[4],
+                        (splitArray[17] == " ") ? "TBA" : splitArray[17],
+                        splitArray[5],
+                        ints[5],
+                        splitArray[7],
+                        credits,
+                        splitArray[9],
+                        fees,
+                        ints[6],
+                        splitArray[12],
+                        Tools.GetDaysFromScheduleString(splitArray[13]),
+                        timeRange[0],
+                        timeRange[1],
+                        splitArray[18]
+                    );
+                }
+                else // normal behavior
+                {
+                    retCourse = new Course(this.CourseTerm.ToString(),
+                        ints[0],
+                        ints[1],
+                        ints[3],
+                        (splitArray[17] == " ") ? "TBA" : splitArray[17],
+                        splitArray[5],
+                        ints[4],
+                        splitArray[7],
+                        credits,
+                        splitArray[9],
+                        fees,
+                        ints[5],
+                        splitArray[12],
+                        Tools.GetDaysFromScheduleString(splitArray[13]),
+                        timeRange[0],
+                        timeRange[1],
+                        splitArray[18]
+                    );
+                }
+            }
+            catch (Exception e)
+            {
+                PrintArray<int>(ints.ToArray());
+                Thread.Sleep(1000000);
+            }
+
+
+            return retCourse;
         }
         
         protected Course[] ParseNodes()
@@ -135,11 +181,15 @@ namespace CourseDB
             Course[] courses = new Course[strings.Count];
 
             Course prev;
-            
-            
+
             for (int x = 0; x < strings.Count; x++)
+            {
                 if (!(prev = this.ParseNode(strings[x])).IsNull())
+                {
+                    Console.Write($"x: {x}");
                     courses[x] = prev;
+                }
+            }
 
             return courses;
         }
@@ -152,11 +202,24 @@ namespace CourseDB
             {
                 this.FetchRawHTMLAsync();
                 this.DumpHTML();
+                this.LoadHTML();
             }
     
             this.Document.LoadHtml(this.HTMLDump);
 
             return this.ParseNodes();
+        }
+
+        public void SyncDB()
+        {
+            Course[] courses = this.GetCourseList();
+           
+            Console.WriteLine($"length: {courses.Length}");            
+            
+            for (int x = 0; x < courses.Length; x++)
+                this.Manager.AddCourse(courses[x], false);
+            
+            this.Manager.UpdateDB();
         }
 
         public CourseScraper(Term term, DatabaseConfiguration config)

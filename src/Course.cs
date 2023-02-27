@@ -40,7 +40,7 @@ namespace CourseDB
 
         public string Instructor;
 
-        public DayOfWeek[] Days;
+        public DayOfWeek[] Schedule;
 
         public Time StartTime;
 
@@ -60,16 +60,16 @@ namespace CourseDB
                 "Waitlist",
                 "CRN",
                 "Room",
-                "Subject",
+                "Subj",
                 "CourseNumber",
                 "Section",
                 "Credits",
                 "Title",
                 "Fees",
                 "RptLimit",
-                "Type",
+                "CourseType",
                 "Instructor",
-                "Days",
+                "Schedule",
                 "StartTime",
                 "EndTime"
             }, new object[]
@@ -88,7 +88,7 @@ namespace CourseDB
                 this.RptLimit,
                 this.Type,
                 this.Instructor,
-                Tools.GetDaysString(this.Days),
+                Tools.GetDaysString(this.Schedule),
                 this.StartTime.ToString(),
                 this.EndTime.ToString()
             });
@@ -112,27 +112,28 @@ namespace CourseDB
                     this.RptLimit == 0 &&
                     this.Type == null &&
                     this.Instructor == null &&
-                    this.Days == null &&
+                    this.Schedule == null &&
                     this.StartTime == null &&
                     this.EndTime == null);
         }
 
     public Course(string term = null, int seats = 0, int waitlist = 0, int crn = 0, string location = null, string subject = null,
             int courseNumber = 0, string section = null, double credits = 0, string title = null, double fees = 0, int rptLimit = 0,
-            string type = null, DayOfWeek[] days = null, Time startTime = null,
+            string type = null, DayOfWeek[] schedule = null, Time startTime = null,
             Time endTime = null, string instructor = null)
         {
             this.Term = term;
             this.Seats = seats;
             this.Waitlist = waitlist;
             this.CRN = crn;
-            this.Days = days;
+            this.Schedule = schedule;
             this.Location = location;
             this.Subject = subject;
             this.CourseNumber = courseNumber;
             this.Section = section;
             this.Credits = credits;
             this.Title = title;
+            this.RptLimit = rptLimit;
             this.Type = type;
             this.Fees = fees;
             this.StartTime = startTime;
@@ -154,8 +155,19 @@ namespace CourseDB
         /// </summary>
         public void UpdateDB()
         {
-            for (int x = 0; x < this.Courses.Count; x++)
-                this.Database.UpdateRecord(this.Courses[x].CRN.ToString(), this.Courses[x].ToRecord(), "");
+            //if (this.Database.FetchQueryData("SELECT * FROM Courses;", "Courses").Length == 0)
+                for (int x = 0; x < this.Courses.Count; x++)
+                    try
+                    {
+                        this.Database.InsertRecord(this.Courses[x].ToRecord(), "Courses", true);
+                    }
+                    catch (NullReferenceException e)
+                    {
+                        Console.WriteLine($"Null at {x}");
+                    }
+                // else
+            //     for (int x = 0; x < this.Courses.Count; x++)
+            //         this.Database.UpdateRecord(this.Courses[x].CRN.ToString(), this.Courses[x].ToRecord(), "");
         }
            
         /// <summary>
@@ -173,10 +185,12 @@ namespace CourseDB
         
         public CourseManager(DatabaseConfiguration databaseConfig)
         {
+            this.Courses = new List<Course>(); 
             this.DatabaseConfig = databaseConfig;
             this.Database = new PostGRESDatabase(this.DatabaseConfig);
             this.Database.Connect();
         }
     }
 }
+ 
  
