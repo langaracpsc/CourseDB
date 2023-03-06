@@ -62,3 +62,4 @@ public class Time : IComparable<Time>
         this.Second = second;
     }
 }
+

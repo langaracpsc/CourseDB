@@ -101,11 +101,14 @@ namespace CourseDB
 
         public bool IsNull()
         {
-            return (this.Seats == 0 &&
+            return (this.Term == null &&
+                    this.Seats == 0 &&
                     this.Waitlist == 0 &&
                     this.CRN == null &&
                     this.Location == null &&
                     this.Subject == null &&
+                    this.CourseNumber == 0 &&
+                    this.Section == null &&
                     this.Credits == 0 &&
                     this.Title == null &&
                     this.Fees == 0 &&
@@ -139,6 +142,7 @@ namespace CourseDB
             this.StartTime = startTime;
             this.EndTime = endTime;
             this.Instructor = instructor;
+            //Console.WriteLine(this.IsNull());
         }
     }
 

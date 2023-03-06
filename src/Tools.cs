@@ -90,7 +90,7 @@ public class Tools
     {
         string[] splitString = str.Split('-'); 
         
-        Console.WriteLine(splitString.Length);
+        //Console.WriteLine(splitString.Length);
 
         return new Time[]
         {
@@ -145,7 +145,18 @@ public class Tools
 
         return altString;
     }
-    
+
+    public static List<T> RemoveNulls<T>(List<T> objects)
+    {
+        List<T> nonNulls = new List<T>(); 
+       
+        for (int x = 0; x < objects.Count; x++)
+            if (objects[x] != null)
+                nonNulls.Add(objects[x]);
+
+        return nonNulls;
+    }
+
     /// <summary>
     /// Replaces the substring in the provided strings with a delimiter.
     /// </summary>

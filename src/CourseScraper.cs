@@ -3,6 +3,7 @@ using System.Runtime.Serialization;
 using HtmlAgilityPack;
 using OpenDatabase;
 using OpenQA.Selenium;
+using OpenQA.Selenium.DevTools.V106.Network;
 using OpenQA.Selenium.DevTools.V85.Overlay;
 
 namespace CourseDB
@@ -20,21 +21,21 @@ namespace CourseDB
         public Term CourseTerm;
 
         public DateTime LastSync;
-        
-        protected static string DumpCacheFile = "HtmlTableDump";
 
         public HtmlDocument Document;
         
         public List<string[]> InnerStrings;
+
+        public bool IsRunning;
         
         protected void DumpHTML()
         {
-            FileIO.Write(this.HTMLDump, CourseScraper.DumpCacheFile);
+            FileIO.Write(this.HTMLDump, $"dump_{this.CourseTerm.ToString()}");
         }
 
         protected void LoadHTML()
         {
-            this.HTMLDump = FileIO.Read(CourseScraper.DumpCacheFile);
+            this.HTMLDump = FileIO.Read($"dump_{this.CourseTerm.ToString()}");
         }
 
         protected async Task FetchRawHTMLAsync()
@@ -63,7 +64,8 @@ namespace CourseDB
 
             return (this.InnerStrings = innerStrings);
         }
-
+        
+        
         protected static void PrintArray<T>(T[] array, string delimiter="\n")
         {
             for (int x = 0; x < array.Length; x++)
@@ -81,7 +83,7 @@ namespace CourseDB
         public Course ParseNode(string[] splitArray)
         {
             if (splitArray.Length < 18 || !this.IsRecord(splitArray))
-                return new Course();
+                return null;
 
             Time[] timeRange = Tools.GetTimeRange(splitArray[14]);
 
@@ -113,8 +115,6 @@ namespace CourseDB
                 splitArray[10].Substring(index = splitArray[10].IndexOf("$") + 1, splitArray[10].Length - index),
                 out fees);
             Double.TryParse(splitArray[8], out credits);
-
-            Console.WriteLine($"ints: {ints.Count}");
 
             
             Course retCourse = new Course();
@@ -170,20 +170,15 @@ namespace CourseDB
         {
             List<string[]> strings = this.GetInnerStrings(this.Document.DocumentNode);
             
-            Course[] courses = new Course[strings.Count];
+            List<Course>  courses = new List<Course>();
 
             Course prev;
 
             for (int x = 0; x < strings.Count; x++)
-            {
-                if (!(prev = this.ParseNode(strings[x])).IsNull())
-                {
-                    Console.Write($"x: {x}");
-                    courses[x] = prev;
-                }
-            }
+                if ((prev = this.ParseNode(strings[x])) != null)
+                    courses.Add(prev);
 
-            return courses;
+            return courses.ToArray();
         }
 
         public Course[] GetCourseList()
@@ -211,10 +206,31 @@ namespace CourseDB
            
             if (update)
                 this.Manager.UpdateDB();
+            
+            this.LastSync = DateTime.Now;
+        }
+
+        public async Task Run()
+        {
+            this.IsRunning = true;
+            await Task.Run(()=> {
+                while (this.IsRunning)
+                {
+                    if (this.LastSync.CompareTo(DateTime.Now) <= 0)
+                        this.SyncDB();
+                    
+                }
+            });
+        }
+
+        public void Terminate()
+        {
+            this.IsRunning = false;
         }
 
         public CourseScraper(Term term, DatabaseConfiguration config)
         {
+            this.IsRunning = false;
             this.CourseTerm = term;
             this.BaseURL = $"https://swing.langara.bc.ca/prod/hzgkfcls.P_GetCrse?term_in={this.CourseTerm.ToString()}&sel_subj=dummy&sel_day=dummy&sel_schd=dummy&sel_insm=dummy&sel_camp=dummy&sel_levl=dummy&sel_sess=dummy&sel_instr=dummy&sel_ptrm=dummy&sel_attr=dummy&sel_dept=dummy&sel_crse=&sel_title=%25&sel_dept=%25&sel_ptrm=%25&sel_schd=%25&begin_hh=0&begin_mi=0&begin_ap=a&end_hh=0&end_mi=0&end_ap=a&sel_incl_restr=Y&sel_incl_preq=Y&SUB_BTN=Get+Courses";
             this.Client = new HttpClient();
