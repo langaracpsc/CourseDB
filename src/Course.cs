@@ -2,11 +2,14 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.Versioning;
+using System.Security.AccessControl;
 using System.Text.Json.Serialization;
 using OpenDatabase;
 using OpenDatabaseAPI;
 using Newtonsoft.Json;
+using OpenQA.Selenium.DevTools.V106.BackgroundService;
 using OpenQA.Selenium.DevTools.V106.Overlay;
+using RecordingStateChangedEventArgs = OpenQA.Selenium.DevTools.V107.BackgroundService.RecordingStateChangedEventArgs;
 
 namespace CourseDB
 {
@@ -144,6 +147,14 @@ namespace CourseDB
             this.Instructor = instructor;
             //Console.WriteLine(this.IsNull());
         }
+
+        public Course(Record record)
+        {
+            string[] valueStrings = Tools.CastArray<string>(record.Values);
+            
+            this.Term = valueStrings[0];
+            this.Seats = int.Parse(valueStrings[1]);
+        }
     }
 
     public class CourseManager
@@ -185,6 +196,18 @@ namespace CourseDB
             
             if (updateDB)
                 this.UpdateDB();
+        }
+
+        public Course[] GetCoursesByTerm(string term)
+        {
+            Record[] records = this.Database.FetchQueryData($"SELECT * FROM Courses WHERE Term={term.ToString()}", "Courses");
+
+            Course[] courses = new Course[records.Length];
+
+            for (int x = 0; x < courses.Length; x++)
+                courses[x] = new Course(records[x]); 
+            
+            return courses;
         }
         
         public CourseManager(DatabaseConfiguration databaseConfig)

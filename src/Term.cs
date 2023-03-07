@@ -1,3 +1,6 @@
+using System.Data;
+using System.Runtime.CompilerServices;
+
 namespace CourseDB;
 
 public enum TermType
@@ -7,6 +10,12 @@ public enum TermType
     Fall
 }
 
+public class InvalidTermStringException : Exception
+{
+    public InvalidTermStringException() : base("Provided term string is invalid.")
+    {
+    }
+}
 
 /// <summary>
 /// Stores a pair of an year and term
@@ -20,6 +29,16 @@ public class Term
     public override string ToString()
     {
         return $"{this.Year}{((int)this.Type + 1) * 10}";
+    }
+
+    protected static TermType GetTermType(int term)
+    {
+        if (term > 30)
+            return TermType.Fall;
+            if (term < 10)
+            return TermType.Summer;
+        
+        return (TermType)((int)(term / 10) - 1);
     }
 
     protected static TermType GetCurrentTermType()
@@ -42,5 +61,17 @@ public class Term
     {
         this.Year = year;
         this.Type = type;
+    }
+
+    public Term(string str)
+    {
+        if (!Tools.InRange(str.Length, 0, 7))
+            throw new InvalidTermStringException();
+
+        string[] dividedString = Tools.DivideString(str, new int[] {4, 2});
+
+        this.Type = Term.GetTermType(int.Parse(dividedString[1]));
+
+        this.Year = int.Parse(dividedString[0]);
     }
 } 

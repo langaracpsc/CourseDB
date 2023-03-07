@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices.ComTypes;
 using System.Security.AccessControl;
 using AngleSharp.Text;
 using Npgsql.PostgresTypes;
@@ -63,6 +64,48 @@ public class Tools
         
         return divided;
     }
+
+    public static int AddArray(int[] ints)
+    {
+        int sum = 0;
+        
+        for (int x = 0; x < ints.Length; x++)
+            sum += ints[x];
+        
+        return sum;
+    }
+
+    public static T[] CastArray<T>(object[] objects)
+    {
+        T[] casted = new T[objects.Length];
+
+        for (int x = 0; x < objects.Length; x++)
+            casted[x] = (T)objects[x];
+            
+        return casted;
+    }
+
+    /// <summary>
+    /// Divides the provided string in the given ratio.
+    /// </summary>
+    /// <param name="str">String tobe divided.</param>
+    /// <param name="parts">Ratio to divide the string in.</param>
+    /// <returns> Divided string. </returns>
+    public static string[] DivideString(string str, int[] parts)
+    {
+        string[] divided;
+
+        if (Tools.AddArray(parts) > str.Length)
+            return null;
+
+        divided = new string[parts.Length];
+
+        for (int x = 0, prev = 0; x < parts.Length; prev += parts[x], x++)
+            divided[x] = str.Substring(prev, parts[x]);
+        
+        return divided;
+    }
+
 
     public static char[] AsciiRange(int start, int end)
     {
@@ -155,6 +198,15 @@ public class Tools
                 nonNulls.Add(objects[x]);
 
         return nonNulls;
+    }
+
+    public static Course[] GetCoursesFromObjects(object[] objects)
+    {
+        Course[] courses = new Course[objects.Length];
+
+        for (int x = 0; x < objects.Length; x++)
+            courses[x] = objects[x] as Course;
+        return courses;
     }
 
     /// <summary>

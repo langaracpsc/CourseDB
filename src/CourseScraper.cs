@@ -4,6 +4,7 @@ using HtmlAgilityPack;
 using OpenDatabase;
 using OpenQA.Selenium;
 using OpenQA.Selenium.DevTools.V106.Network;
+using OpenQA.Selenium.DevTools.V108.CSS;
 using OpenQA.Selenium.DevTools.V85.Overlay;
 
 namespace CourseDB
@@ -18,15 +19,35 @@ namespace CourseDB
 
         public string BaseURL;
 
-        public Term CourseTerm;
+        public Term CourseTerm
+        {
+            get { return CourseTerm; }
+            set { this.SetTerm(value); } 
+        }
 
-        public DateTime LastSync;
+        public Dictionary<string, DateTime> LastSync;
 
         public HtmlDocument Document;
         
         public List<string[]> InnerStrings;
 
         public bool IsRunning;
+
+        protected void SetTerm(Term term)
+        {
+            this.CourseTerm = term;
+
+            string path;
+
+            if (!File.Exists(path = $"dump_{term.ToString()}"))
+            {
+                this.FetchRawHTMLAsync();
+                this.DumpHTML();
+            }
+                
+            this.LoadHTML();
+            this.Document.LoadHtml(this.HTMLDump);
+        }
         
         protected void DumpHTML()
         {
@@ -64,7 +85,6 @@ namespace CourseDB
 
             return (this.InnerStrings = innerStrings);
         }
-        
         
         protected static void PrintArray<T>(T[] array, string delimiter="\n")
         {
@@ -116,7 +136,6 @@ namespace CourseDB
                 out fees);
             Double.TryParse(splitArray[8], out credits);
 
-            
             Course retCourse = new Course();
 
                 if (ints[4] > 5000) // inconsistent record exception
@@ -196,7 +215,7 @@ namespace CourseDB
 
             return this.ParseNodes();
         }
-
+        
         public void SyncDB(bool update = true)
         {
             Course[] courses = this.GetCourseList();
@@ -207,7 +226,7 @@ namespace CourseDB
             if (update)
                 this.Manager.UpdateDB();
             
-            this.LastSync = DateTime.Now;
+            this.LastSync[this.CourseTerm.ToString()] = DateTime.Now;
         }
 
         public async Task Run()
@@ -216,9 +235,8 @@ namespace CourseDB
             await Task.Run(()=> {
                 while (this.IsRunning)
                 {
-                    if (this.LastSync.CompareTo(DateTime.Now) <= 0)
+                    if (this.LastSync[this.CourseTerm.ToString()].CompareTo(DateTime.Now) <= 0)
                         this.SyncDB();
-                    
                 }
             });
         }
@@ -231,7 +249,7 @@ namespace CourseDB
         public CourseScraper(Term term, DatabaseConfiguration config)
         {
             this.IsRunning = false;
-            this.CourseTerm = term;
+            this.CourseTerm =  term;
             this.BaseURL = $"https://swing.langara.bc.ca/prod/hzgkfcls.P_GetCrse?term_in={this.CourseTerm.ToString()}&sel_subj=dummy&sel_day=dummy&sel_schd=dummy&sel_insm=dummy&sel_camp=dummy&sel_levl=dummy&sel_sess=dummy&sel_instr=dummy&sel_ptrm=dummy&sel_attr=dummy&sel_dept=dummy&sel_crse=&sel_title=%25&sel_dept=%25&sel_ptrm=%25&sel_schd=%25&begin_hh=0&begin_mi=0&begin_ap=a&end_hh=0&end_mi=0&end_ap=a&sel_incl_restr=Y&sel_incl_preq=Y&SUB_BTN=Get+Courses";
             this.Client = new HttpClient();
             this.Document = new HtmlDocument();
