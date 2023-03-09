@@ -1,6 +1,7 @@
 using System; 
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Runtime.Versioning;
 using System.Security.AccessControl;
 using System.Text.Json.Serialization;
@@ -9,12 +10,16 @@ using OpenDatabaseAPI;
 using Newtonsoft.Json;
 using OpenQA.Selenium.DevTools.V106.BackgroundService;
 using OpenQA.Selenium.DevTools.V106.Overlay;
+using OpenQA.Selenium.DevTools.V108.Audits;
 using RecordingStateChangedEventArgs = OpenQA.Selenium.DevTools.V107.BackgroundService.RecordingStateChangedEventArgs;
+using SetShowFPSCounterCommandResponse = OpenQA.Selenium.DevTools.V108.Overlay.SetShowFPSCounterCommandResponse;
 
 namespace CourseDB
 {
     public class Course
     {
+        public int ID;
+        
         public int Seats;
 
         public int Waitlist;
@@ -97,6 +102,28 @@ namespace CourseDB
             });
         }
 
+        public override bool Equals(object? obj)
+        {
+            Course course = obj as Course;
+            
+            return (this.Term == course.Term &&
+                    this.Seats == course.Seats && 
+                    this.Waitlist == course.Waitlist &&
+                    this.CRN == course.Waitlist &&
+                    this.Location == course.Location && 
+                    this.Subject == course.Subject &&
+                    this.Section == course.Section &&
+                    this.Credits == course.Credits &&
+                    this.Title == course.Title && 
+                    this.Fees == course.Fees &&
+                    this.RptLimit == course.RptLimit &&
+                    this.Type == course.Type &&
+                    this.Instructor == course.Instructor &&
+                    this.Schedule == course.Schedule &&
+                    this.StartTime == course.StartTime &&
+                    this.EndTime == course.EndTime);
+        }
+
         public string ToJson()
         {
             return JsonConvert.SerializeObject(this);
@@ -122,8 +149,8 @@ namespace CourseDB
                     this.StartTime == null &&
                     this.EndTime == null);
         }
-
-    public Course(string term = null, int seats = 0, int waitlist = 0, int crn = 0, string location = null, string subject = null,
+        
+        public Course(string term = null, int seats = 0, int waitlist = 0, int crn = 0, string location = null, string subject = null,
             int courseNumber = 0, string section = null, double credits = 0, string title = null, double fees = 0, int rptLimit = 0,
             string type = null, DayOfWeek[] schedule = null, Time startTime = null,
             Time endTime = null, string instructor = null)
@@ -154,8 +181,25 @@ namespace CourseDB
             
             this.Term = valueStrings[0];
             this.Seats = int.Parse(valueStrings[1]);
+            this.Waitlist = int.Parse(valueStrings[2]);
+            this.CRN = int.Parse(valueStrings[3]);
+
+            this.Location = valueStrings[4];
+            this.Subject = valueStrings[5];
+
+            this.CourseNumber = int.Parse(valueStrings[6]);
+            this.Section = valueStrings[7];
+            this.Credits = int.Parse(valueStrings[8]);
+            this.Title = valueStrings[9];
+            this.Fees = int.Parse(valueStrings[10]);
+
+            this.RptLimit = int.Parse(valueStrings[11]);
+            this.Type = valueStrings[12];
+            this.Instructor = valueStrings[13];
+            this.Schedule = Tools.GetDaysFromDayString(valueStrings[14]);
+            this.StartTime = Time.FromSQLString(valueStrings[15]);
+            this.EndTime = Time.FromSQLString(valueStrings[15]);
         }
-    }
 
     public class CourseManager
     {
@@ -184,7 +228,20 @@ namespace CourseDB
             //     for (int x = 0; x < this.Courses.Count; x++)
             //         this.Database.UpdateRecord(this.Courses[x].CRN.ToString(), this.Courses[x].ToRecord(), "");
         }
-           
+
+        public int SearchCourse(Course course)
+        {
+            for (int x = 0; x < this.Courses.Count ; x++)
+                if (this.Courses[x] == course)
+                    return x;
+            return -1;
+        }
+
+        public bool CourseExists(Course course)
+        {
+            return (this.SearchCourse(course) != -1);
+        }
+
         /// <summary>
         /// Adds the provided course the cache and optionally updates the DB.
         /// </summary>

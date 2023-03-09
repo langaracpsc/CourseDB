@@ -35,7 +35,7 @@ public class Term
     {
         if (term > 30)
             return TermType.Fall;
-            if (term < 10)
+        if (term < 10)
             return TermType.Summer;
         
         return (TermType)((int)(term / 10) - 1);
@@ -50,6 +50,13 @@ public class Term
             return TermType.Summer;
         
         return TermType.Fall;
+    }
+
+    public static Term FromTermString(string termString)
+    {
+        string[] divided = Tools.DivideString(termString, new int[]{ 4, 2 });
+
+        return new Term(int.Parse(divided[0]), Term.GetTermType(int.Parse(divided[1])));
     }
 
     public static Term GetCurrent()

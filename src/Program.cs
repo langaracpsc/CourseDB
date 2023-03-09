@@ -6,6 +6,7 @@ using System.Runtime.InteropServices.ComTypes;
 using HtmlAgilityPack;
 using Newtonsoft.Json;
 using OpenDatabase;
+using OpenQA.Selenium.DevTools.V106.CSS;
 
 namespace CourseDB
 {
@@ -15,16 +16,22 @@ namespace CourseDB
         {
             CourseScraper scraper = new CourseScraper(Term.GetCurrent(),
                 DatabaseConfiguration.LoadFromFile("DatabaseConfig.json"));
-            
+
+            scraper.CourseTerm = Term.FromTermString(args[0]);
+
             Course[] courses = scraper.GetCourseList();
-  
-           scraper.SyncDB();
+           
             
+            for (int x = 0; x < courses.Length; x++)
+                scraper.Manager.AddCourse(courses[x], false);
+
+            // scraper.SyncDB();
+
             // for (int x = 0; x < courses.Length; x++)
             //     if (courses[x] == null)
             //         Console.WriteLine($"courseNull");
-           
-           // Console.WriteLine(JsonConvert.SerializeObject(new Term(args[0])));
+
+            // Console.WriteLine(JsonConvert.SerializeObject(new Term(args[0])));
         } 
     } 
 }

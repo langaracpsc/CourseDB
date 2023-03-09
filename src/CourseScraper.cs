@@ -19,12 +19,8 @@ namespace CourseDB
 
         public string BaseURL;
 
-        public Term CourseTerm
-        {
-            get { return CourseTerm; }
-            set { this.SetTerm(value); } 
-        }
-
+        public Term CourseTerm;
+        
         public Dictionary<string, DateTime> LastSync;
 
         public HtmlDocument Document;
@@ -161,8 +157,7 @@ namespace CourseDB
                 }
                 else // normal behavior
                 {
-                    retCourse = new Course(this.CourseTerm.ToString(),
-                        ints[0],
+                    retCourse = new Course(this.CourseTerm.ToString(), ints[0],
                         ints[1],
                         ints[3],
                         (splitArray[17] == " ") ? "TBA" : splitArray[17],
