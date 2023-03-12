@@ -234,7 +234,7 @@ namespace CourseDB
 
         public bool CourseExists(Course course)
         {
-            string stru;
+            string str;
 
             if (course == null)
                 return false;
