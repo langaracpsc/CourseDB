@@ -214,10 +214,11 @@ namespace CourseDB
         public void SyncDB(bool update = true)
         {
             Course[] courses = this.GetCourseList();
-            
+
             for (int x = 0; x < courses.Length; x++)
-                this.Manager.AddCourse(courses[x], false);
-           
+                if (courses[x] != null)
+                    this.Manager.AddCourse(courses[x], false);
+
             if (update)
                 this.Manager.UpdateDB();
             
