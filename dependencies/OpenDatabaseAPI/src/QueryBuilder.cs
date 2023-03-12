@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection.Metadata;
 using System.Runtime.CompilerServices;
+using Newtonsoft.Json;
 
 namespace OpenDatabase
 {
@@ -67,7 +68,7 @@ namespace OpenDatabase
 			return this;
 		}
 
-		public override string ToString()
+		public override string ToString() 
 		{
 			string conditionString = null;
 			
@@ -97,7 +98,7 @@ namespace OpenDatabase
 		}
 	}
 
-	public class QueryBuilder
+	public class QueryBuilder 
 	{
 		public enum Command
 		{
@@ -129,17 +130,35 @@ namespace OpenDatabase
 		public static string GetValueString<T>(T value)
 		{
 			string valueString = null;
-	
+
+			if (value == null)
+				return "null";
+
 			Type valueType = value.GetType();
 			
 			 if (valueType == typeof(int))
 				valueString = Convert.ToString(value);
 			 else if (valueType == typeof(char))
-				valueString = $"\'{Convert.ToString(value)}\'";
+			 {
+				 valueString = $"\'{Convert.ToString(value)}\'";
+			 }
 			 
 			 else if (valueType == typeof(string))
-				valueString = $"\'{Convert.ToString(value)}\'";
-			 
+			 {
+				 string converted = Convert.ToString(value), altered = null;
+
+				 string[] split = converted.Split("'");
+				 
+				 for (int x = 0; x < converted.Length; x++)
+					 if (converted[x] == '\'')
+						 altered += "\'\'";
+					 else
+						 altered += converted[x];
+
+				 Console.WriteLine($"Altered: {altered}");
+				 
+				 valueString = $"\'{altered}\'";
+			 }
 			 else if (valueType == typeof(bool))
 				valueString = (value.Equals(true)) ? "TRUE" : "FALSE";
 			 
@@ -155,10 +174,10 @@ namespace OpenDatabase
 			string tuple = "(";
 
 			int size = record.Keys.Length - 1;
-			
+
 			for (int x = 0; x < size; x++)
 				tuple += $"{record.Keys[x]}={QueryBuilder.GetValueString(record.Values[x])}, ";
-			
+
 			tuple += $"{record.Keys[size]}={QueryBuilder.GetValueString(record.Values[size])})";
 
 			return tuple;

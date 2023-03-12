@@ -251,6 +251,7 @@ namespace CourseDB
             this.Document = new HtmlDocument();
 
             this.Manager = new CourseManager(config);
+            this.LastSync = new Dictionary<string,DateTime>();
         }
     }
 }

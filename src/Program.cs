@@ -29,13 +29,8 @@ namespace CourseDB
         //
         //
         //
-        //     // scraper.SyncDB();
+        //     scraper.SyncDB();
         //
-        //     // for (int x = 0; x < courses.Length; x++)
-        //     //     if (courses[x] == null)
-        //     //         Console.WriteLine($"courseNull");
-        //
-        //         // Console.WriteLine(JsonConvert.SerializeObject(new Term(args[0])));
         // } 
     } 
 }
