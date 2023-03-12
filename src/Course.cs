@@ -102,30 +102,30 @@ namespace CourseDB
             });
         }
 
-        public override bool Equals(object? obj)
-        {
-            if (obj == null)
-                return false;
-            
-            Course course = obj as Course;
-
-            return (this.Term == course.Term &&
-                    this.Seats == course.Seats &&
-                    this.Waitlist == course.Waitlist &&
-                    this.CRN == course.Waitlist &&
-                    this.Location == course.Location &&
-                    this.Subject == course.Subject &&
-                    this.Section == course.Section &&
-                    this.Credits == course.Credits &&
-                    this.Title == course.Title &&
-                    this.Fees == course.Fees &&
-                    this.RptLimit == course.RptLimit &&
-                    this.Type == course.Type &&
-                    this.Instructor == course.Instructor &&
-                    this.Schedule == course.Schedule &&
-                    this.StartTime == course.StartTime &&
-                    this.EndTime == course.EndTime);
-        }
+        // public override bool Equals(object? obj)
+        // {
+        //     if (obj == null)
+        //         return false;
+        //     
+        //     Course course = obj as Course;
+        //
+        //     return (this.Term == course.Term &&
+        //             this.Seats == course.Seats &&
+        //             this.Waitlist == course.Waitlist &&
+        //             this.CRN == course.Waitlist &&
+        //             this.Location == course.Location &&
+        //             this.Subject == course.Subject &&
+        //             this.Section == course.Section &&
+        //             this.Credits == course.Credits &&
+        //             this.Title == course.Title &&
+        //             this.Fees == course.Fees &&
+        //             this.RptLimit == course.RptLimit &&
+        //             this.Type == course.Type &&
+        //             this.Instructor == course.Instructor &&
+        //             this.Schedule == course.Schedule &&
+        //             this.StartTime == course.StartTime &&
+        //             this.EndTime == course.EndTime);
+        // }
 
         public string ToJson()
         {
