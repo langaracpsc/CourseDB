@@ -104,6 +104,9 @@ namespace CourseDB
 
         public override bool Equals(object? obj)
         {
+            if (obj == null)
+                return false;
+            
             Course course = obj as Course;
 
             return (this.Term == course.Term &&
