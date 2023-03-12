@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices.ComTypes;
 using System.Security.AccessControl;
 using AngleSharp.Text;
+using Newtonsoft.Json;
 using Npgsql.PostgresTypes;
 using OpenQA.Selenium.DevTools.V85.CSS;
 
@@ -228,19 +229,26 @@ public class Tools
     {
         string dayString = null;
 
-        for (int x = 0; x < days.Length; x++)
+            for (int x = 0; x < days.Length; x++)
             dayString += Convert.ToString((int)days[x]);
 
         return dayString;
     }
 
+    
+    /// <summary>
+    ///  Converts the provided SQL day string to a DayOfWeek array.
+    /// </summary>
+    /// <param name="days"> day string </param>
+    /// <returns></returns>
     public static DayOfWeek[] GetDaysFromDayString(string days)
     {
         List<DayOfWeek> dayStack = new List<DayOfWeek>();
-        DayOfWeek day = 0;
         
+        DayOfWeek day = 0;
+
         for (int x = 0; x < days.Length; x++)
-            if (!dayStack.Contains((day = (DayOfWeek)Convert.ToInt32(days[x]))))
+            if (!dayStack.Contains(day = (DayOfWeek)(days[x] -  48)))
                 dayStack.Add(day);
 
         return dayStack.ToArray();
@@ -253,4 +261,5 @@ public class Tools
         list[index1] = temp; 
     }
 }   
- 
+  
+  

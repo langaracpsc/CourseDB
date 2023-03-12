@@ -24,7 +24,7 @@ namespace OpenDatabase.Json
 			{
 				jsonStringDump = FileIO.ReadFile(path); 			
 					
-				jsonHash = JsonConvert.DeserializeObject<Hashtable>(jsonStringDump);					
+				jsonHash = JsonConvert.DeserializeObject<Hashtable>(jsonStringDump);	
 			}
 			catch (FileNotFoundException)
 			{

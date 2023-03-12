@@ -19,7 +19,7 @@ namespace CourseDB
     public class Course
     {
         public int ID;
-        
+
         public int Seats;
 
         public int Waitlist;
@@ -58,7 +58,7 @@ namespace CourseDB
         {
             return new Course();
         }
-        
+
         public Record ToRecord()
         {
             return new Record(new string[]
@@ -105,16 +105,16 @@ namespace CourseDB
         public override bool Equals(object? obj)
         {
             Course course = obj as Course;
-            
+
             return (this.Term == course.Term &&
-                    this.Seats == course.Seats && 
+                    this.Seats == course.Seats &&
                     this.Waitlist == course.Waitlist &&
                     this.CRN == course.Waitlist &&
-                    this.Location == course.Location && 
+                    this.Location == course.Location &&
                     this.Subject == course.Subject &&
                     this.Section == course.Section &&
                     this.Credits == course.Credits &&
-                    this.Title == course.Title && 
+                    this.Title == course.Title &&
                     this.Fees == course.Fees &&
                     this.RptLimit == course.RptLimit &&
                     this.Type == course.Type &&
@@ -149,9 +149,11 @@ namespace CourseDB
                     this.StartTime == null &&
                     this.EndTime == null);
         }
-        
-        public Course(string term = null, int seats = 0, int waitlist = 0, int crn = 0, string location = null, string subject = null,
-            int courseNumber = 0, string section = null, double credits = 0, string title = null, double fees = 0, int rptLimit = 0,
+
+        public Course(string term = null, int seats = 0, int waitlist = 0, int crn = 0, string location = null,
+            string subject = null,
+            int courseNumber = 0, string section = null, double credits = 0, string title = null, double fees = 0,
+            int rptLimit = 0,
             string type = null, DayOfWeek[] schedule = null, Time startTime = null,
             Time endTime = null, string instructor = null)
         {
@@ -177,29 +179,25 @@ namespace CourseDB
 
         public Course(Record record)
         {
-            string[] valueStrings = Tools.CastArray<string>(record.Values);
-            
-            this.Term = valueStrings[0];
-            this.Seats = int.Parse(valueStrings[1]);
-            this.Waitlist = int.Parse(valueStrings[2]);
-            this.CRN = int.Parse(valueStrings[3]);
-
-            this.Location = valueStrings[4];
-            this.Subject = valueStrings[5];
-
-            this.CourseNumber = int.Parse(valueStrings[6]);
-            this.Section = valueStrings[7];
-            this.Credits = int.Parse(valueStrings[8]);
-            this.Title = valueStrings[9];
-            this.Fees = int.Parse(valueStrings[10]);
-
-            this.RptLimit = int.Parse(valueStrings[11]);
-            this.Type = valueStrings[12];
-            this.Instructor = valueStrings[13];
-            this.Schedule = Tools.GetDaysFromDayString(valueStrings[14]);
-            this.StartTime = Time.FromSQLString(valueStrings[15]);
-            this.EndTime = Time.FromSQLString(valueStrings[15]);
+            this.Term = record.Values[1].ToString();
+            this.Seats = int.Parse(record.Values[2].ToString());
+            this.Waitlist = int.Parse(record.Values[3].ToString());
+            this.CRN = int.Parse(record.Values[4].ToString());
+            this.Location = record.Values[5].ToString();
+            this.Subject = record.Values[6].ToString();
+            this.CourseNumber = int.Parse(record.Values[7].ToString());
+            this.Section = record.Values[8].ToString();
+            this.Credits = double.Parse(record.Values[9].ToString());
+            this.Title = record.Values[10].ToString();
+            this.Fees = double.Parse(record.Values[11].ToString());
+            this.RptLimit = int.Parse(record.Values[12].ToString());
+            this.Type = record.Values[13].ToString();
+            this.Instructor = record.Values[14].ToString();
+            this.Schedule = Tools.GetDaysFromDayString(record.Values[15].ToString());
+            this.StartTime = Time.FromSQLString(record.Values[16].ToString());
+            this.EndTime = Time.FromSQLString(record.Values[17].ToString());
         }
+    }
 
     public class CourseManager
     {
@@ -214,24 +212,21 @@ namespace CourseDB
         /// </summary>
         public void UpdateDB()
         {
-            //if (this.Database.FetchQueryData("SELECT * FROM Courses;", "Courses").Length == 0)
-                for (int x = 0; x < this.Courses.Count; x++)
-                    try
-                    {
+            for (int x = 0; x < this.Courses.Count; x++)
+                try
+                {
+                    if (!this.CourseExists(this.Courses[x]))
                         this.Database.InsertRecord(this.Courses[x].ToRecord(), "Courses", true);
-                    }
-                    catch (NullReferenceException e)
-                    {
-                        Console.WriteLine($"Null at {x}");
-                    }
-                // else
-            //     for (int x = 0; x < this.Courses.Count; x++)
-            //         this.Database.UpdateRecord(this.Courses[x].CRN.ToString(), this.Courses[x].ToRecord(), "");
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"{e.Message}");
+                }
         }
 
         public int SearchCourse(Course course)
         {
-            for (int x = 0; x < this.Courses.Count ; x++)
+            for (int x = 0; x < this.Courses.Count; x++)
                 if (this.Courses[x] == course)
                     return x;
             return -1;
@@ -239,42 +234,55 @@ namespace CourseDB
 
         public bool CourseExists(Course course)
         {
-            return (this.SearchCourse(course) != -1);
+            string str;
+
+            return (this.Database.FetchQueryData($"SELECT * FROM Courses WHERE {(str = Tools.ReplaceSubString(course.ToRecord().ToString(), ", ", " AND ")).Substring(1, str.Length - 2)}", "Courses").Length != 0);
         }
 
         /// <summary>
         /// Adds the provided course the cache and optionally updates the DB.
-        /// </summary>
+        /// </summary>:
         /// <param name="course">Course to be added.</param>
         /// <param name="updateDB">Represents if the DB should be updated.</param>
         public void AddCourse(Course course, bool updateDB = true)
         {
-            this.Courses.Add(course);
-            
-            if (updateDB)
-                this.UpdateDB();
+            if (!this.CourseExists(course))
+            {
+                this.Courses.Add(course);
+               
+                if (updateDB)
+                    this.UpdateDB();
+            }
+        }
+
+        public void CacheCourses(Term term)
+        {
+            OpenDatabase.Record[] courseRecords = this.Database.FetchQueryData($"SELECT * FROM Courses WHERE Term={term.ToString()}", "Courses");
+
+            for (int x = 0; x < courseRecords.Length; x++)
+                this.Courses.Add(new Course(courseRecords[x]));
         }
 
         public Course[] GetCoursesByTerm(string term)
         {
-            Record[] records = this.Database.FetchQueryData($"SELECT * FROM Courses WHERE Term={term.ToString()}", "Courses");
+            Record[] records = this.Database.FetchQueryData($"SELECT * FROM Courses WHERE Term=\'{term}\'", "Courses");
 
             Course[] courses = new Course[records.Length];
 
             for (int x = 0; x < courses.Length; x++)
-                courses[x] = new Course(records[x]); 
-            
+                courses[x] = new Course(records[x]);
+
             return courses;
         }
-        
+
         public CourseManager(DatabaseConfiguration databaseConfig)
         {
-            this.Courses = new List<Course>(); 
+            this.Courses = new List<Course>();
             this.DatabaseConfig = databaseConfig;
             this.Database = new PostGRESDatabase(this.DatabaseConfig);
             this.Database.Connect();
         }
     }
 }
- 
- 
+
+

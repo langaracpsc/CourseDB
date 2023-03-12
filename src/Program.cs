@@ -17,13 +17,17 @@ namespace CourseDB
             CourseScraper scraper = new CourseScraper(Term.GetCurrent(),
                 DatabaseConfiguration.LoadFromFile("DatabaseConfig.json"));
 
-            scraper.CourseTerm = Term.FromTermString(args[0]);
+            //scraper.CourseTerm = Term.FromTermString(args[0]);
 
-            Course[] courses = scraper.GetCourseList();
-           
+            Course[] courses = scraper.Manager.GetCoursesByTerm(Term.GetCurrent().ToString());
+
+            Console.WriteLine(JsonConvert.SerializeObject(courses[1].Schedule)); 
             
-            for (int x = 0; x < courses.Length; x++)
-                scraper.Manager.AddCourse(courses[x], false);
+            
+            
+            Console.WriteLine(scraper.Manager.CourseExists(courses[1]));//scraper.Manager.AddCourse(courses[x], false);
+
+
 
             // scraper.SyncDB();
 
@@ -31,7 +35,8 @@ namespace CourseDB
             //     if (courses[x] == null)
             //         Console.WriteLine($"courseNull");
 
-            // Console.WriteLine(JsonConvert.SerializeObject(new Term(args[0])));
+                // Console.WriteLine(JsonConvert.SerializeObject(new Term(args[0])));
         } 
     } 
 }
+

@@ -5,8 +5,10 @@ using OpenDatabase;
 using OpenDatabase.Logs;
 using Npgsql;
 using System;
+using System.Collections.ObjectModel;
 using System.Runtime.CompilerServices;
 using System.Xml.Schema;
+using Npgsql.Schema;
 
 namespace OpenDatabaseAPI
 {
@@ -39,16 +41,22 @@ namespace OpenDatabaseAPI
             }
 
             return true;
-        }
-
+        } 
+        /// <summary>
+        /// Extracts the records from the reader.
+        /// </summary>
+        /// <param name="reader"></param>
+        /// <param name="fields"></param>
+        /// <returns></returns>
         protected Record[] GetRecordsFromReader(NpgsqlDataReader reader, string[] fields)
         {
             List<Record> recordStack = new List<Record>();
 
             Record tempRecord = new Record();
-
+            
             try
             {
+                Console.WriteLine($"Rows:{reader.Rows}");
                 while (reader.Read())
                 {
                     int fieldCount = reader.FieldCount;
@@ -57,12 +65,16 @@ namespace OpenDatabaseAPI
 
                     Type fieldType = typeof(string);
 
+                    tempRecord.Keys = fields;
+                    
                     for (int x = 0; x < fieldCount; x++)
                     {
-                        tempRecord.Keys[x] = fields[x];
-
                         if ((fieldType = reader.GetFieldType(x)) == typeof(int))
                             tempRecord.Values[x] = reader.GetInt32(x);
+                       
+                        else if ((fieldType = reader.GetFieldType(x)) == typeof(double))
+                            tempRecord.Values[x] = reader.GetDouble(x);
+                        
                         else
                             tempRecord.Values[x] = reader.GetString(x);
                     }
@@ -78,30 +90,27 @@ namespace OpenDatabaseAPI
             return recordStack.ToArray();
         }
 
-        public string[] GetTableFieldNames(string tableName)
+        public string[] GetTableFieldNames(NpgsqlDataReader reader)
         {
-            List<string> fields = new List<string>();
+            string[] fields = null;
 
-            NpgsqlCommand command = null;
-
-            NpgsqlDataReader reader = null;
+            ReadOnlyCollection<NpgsqlDbColumn> columns;
 
             try
             {
-                command = new NpgsqlCommand($"SELECT column_name FROM INFORMATION_SCHEMA. COLUMNS WHERE TABLE_NAME = '{tableName}';", this.Connection);
-                reader = command.ExecuteReader();
+                fields = new string[reader.FieldCount];
 
-                while (reader.Read())
-                    fields.Add(reader.GetString(0));
+                columns = reader.GetColumnSchema();
 
-                reader.Close();
+                for (int x = 0; x < reader.FieldCount; x++)
+                    fields[x] = columns[x].ColumnName;
             }
             catch (Exception e)
             {
-                Logger.Log(e.Message, true);
+                Console.WriteLine($"An error occured while fetching field names. Exception: {e.Message}");
             }
 
-            return fields.ToArray();
+            return fields;
         }
 
         public override bool ExecuteQuery(string query)
@@ -195,25 +204,27 @@ namespace OpenDatabaseAPI
 
             NpgsqlDataReader reader = null;
 
-            // try
-            // {
-            command = new NpgsqlCommand(query, this.Connection);
+            string[] fields;
+            
+            try
+            {
+                command = new NpgsqlCommand(query, this.Connection);
+                
+                reader = command.ExecuteReader();
+                fields = this.GetTableFieldNames(reader);
+                
+                fetchedRecords = this.GetRecordsFromReader(reader, fields);
 
-            string[] fields = this.GetTableFieldNames(tableName);
-
-            reader = command.ExecuteReader();
-
-            fetchedRecords = this.GetRecordsFromReader(reader, fields);
-
-            reader.Close();
-            // }
-            // catch (Exception e)
-            // {
-            //     Logger.Log(e.Message, true);
-            // }
+                reader.Close();
+            }
+            catch (Exception e)
+            {
+                Logger.Log(e.Message, true);
+            }
 
             return fetchedRecords;
         }
+        
         public PostGRESDatabase(DatabaseConfiguration configuration) : base(configuration)
         {
         }
