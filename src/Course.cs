@@ -234,7 +234,10 @@ namespace CourseDB
 
         public bool CourseExists(Course course)
         {
-            string str;
+            string stru;
+
+            if (course == null)
+                return false;
 
             return (this.Database.FetchQueryData($"SELECT * FROM Courses WHERE {(str = Tools.ReplaceSubString(course.ToRecord().ToString(), ", ", " AND ")).Substring(1, str.Length - 2)}", "Courses").Length != 0);
         }
