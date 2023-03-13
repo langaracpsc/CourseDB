@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.Versioning;
 using System.Security.AccessControl;
 using System.Text.Json.Serialization;
+using Microsoft.Extensions.Logging.Abstractions;
 using OpenDatabase;
 using OpenDatabaseAPI;
 using Newtonsoft.Json;
@@ -294,6 +295,37 @@ namespace CourseDB
 
             return courses;
         }
+
+       
+        /// <summary>
+        /// Fetches the courses based on specific conditions.
+        /// </summary>
+        /// <param name="queryHash"> Key-value map of the query. </param>
+        /// <returns> Fetched courses. </returns>
+        public Course[] GetCoursesByQuery(Dictionary<string, object> queryHash)
+        {
+            KeyPairCondition condition = new KeyPairCondition();
+
+            Record[] records = null;
+            Course[] courses = null;
+            
+            foreach (string key in queryHash.Keys)
+                if (queryHash[key] != null) 
+                    condition.And(new KeyComparisonPair(key, queryHash[key], Operator.Equal));
+
+            records = this.Database.FetchQueryData($"SELECT * FROM Courses WHERE {condition.ToString()}", "Courses");
+           
+            if (records.Length > 0)
+            {
+                courses = new Course[records.Length];
+
+                for (int x = 0; x < courses.Length; x++)
+                    courses[x] = new Course(records[x]); 
+            }
+
+            return courses;
+        }
+
 
         public CourseManager(DatabaseConfiguration databaseConfig)
         {

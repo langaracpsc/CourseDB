@@ -50,6 +50,40 @@ namespace OpenDatabase
 		}
 	}
 
+	public class KeyComparisonPair
+	{
+		protected string[] OperatorChars = new string[] {
+			"<",
+			">",
+			"=",
+			"<=",
+			">"	
+		};
+
+		public string Key;
+
+		public object Value;
+		
+		public Operator ComparisionOperator;
+		
+		protected string OperatorChar; 
+		
+		public override string ToString()
+		{
+			string quote = (this.Value.GetType() == typeof(string)) ? "\'" : null;
+				
+			return $"{this.Key} {this.OperatorChar} {quote}{this.Value}{quote}";
+		}
+
+		public KeyComparisonPair(string key, object value, Operator comparisonOp)
+		{
+			this.ComparisionOperator = comparisonOp;
+			this.Key = key;
+			this.Value = value;
+			this.OperatorChar = OperatorChars[(int)this.ComparisionOperator];
+		}
+	}
+	
 	public class Condition<T>
 	{
 		public List<ComparisonPair<T>>[] Comparisons;
@@ -97,6 +131,55 @@ namespace OpenDatabase
 			};
 		}
 	}
+	
+	
+	public class KeyPairCondition
+	{
+		public List<KeyComparisonPair>[] Comparisons;
+
+		public KeyPairCondition And(KeyComparisonPair comparisonPair)
+		{
+			this.Comparisons[0].Add(comparisonPair);
+			
+			return this;
+		}
+
+		public KeyPairCondition Or(KeyComparisonPair comparisonPair)
+		{
+			this. Comparisons[1].Add(comparisonPair);
+			
+			return this;
+		}
+
+		public override string ToString() 
+		{
+			string conditionString = null;
+			
+			for (int x = 0; x < this.Comparisons[0].Count - 1; x++)
+				conditionString += $"{this.Comparisons[0][x].ToString()} AND ";
+		
+			if (this.Comparisons[0].Count != 0)
+				conditionString += $"{this.Comparisons[0][this.Comparisons[0].Count - 1].ToString()} ";
+			
+			for (int x = 0; x < this.Comparisons[1].Count - 1; x++)
+				conditionString += $"{this.Comparisons[1][x].ToString()} OR";
+		
+			if (this.Comparisons[1].Count != 0) 
+				conditionString += $"OR {this.Comparisons[1][this.Comparisons[1].Count - 1].ToString()} ";
+			
+			return conditionString;
+		}
+
+		public KeyPairCondition()
+		{
+			this.Comparisons = new List<KeyComparisonPair>[2]
+			{
+				new List<KeyComparisonPair>(),
+				new List<KeyComparisonPair>()
+			};
+		}
+	}
+	
 
 	public class QueryBuilder 
 	{
