@@ -242,20 +242,8 @@ namespace CourseDB
 
             if (course == null)
                 return false;
-            
-            try
-            {
-                Console.WriteLine(course == null);
-            }
-            catch (NullReferenceException e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
 
             (str = Tools.ReplaceSubString(course.ToRecord().ToString(), ", ", " AND ")).Substring(1, str.Length - 2);
-            
-            // Console.WriteLine(str);
             
             return (this.Database.FetchQueryData($"SELECT * FROM Courses WHERE {str}", "Courses").Length != 0);
         }
