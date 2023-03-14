@@ -171,7 +171,8 @@ namespace OpenDatabaseAPI
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                C
+                onsole.WriteLine(e.Message);
                 return false;
             }
             

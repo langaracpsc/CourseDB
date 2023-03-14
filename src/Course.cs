@@ -255,7 +255,7 @@ namespace CourseDB
 
             (str = Tools.ReplaceSubString(course.ToRecord().ToString(), ", ", " AND ")).Substring(1, str.Length - 2);
             
-            Console.WriteLine(str);
+            // Console.WriteLine(str);
             
             return (this.Database.FetchQueryData($"SELECT * FROM Courses WHERE {str}", "Courses").Length != 0);
         }
