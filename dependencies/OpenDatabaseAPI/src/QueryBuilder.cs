@@ -18,7 +18,7 @@ namespace OpenDatabase
 
 	public class ComparisonPair<T>
 	{
-		protected string[] OperatorChars = new string[] {
+		protected static string[] OperatorChars = new string[] {
 			"<",
 			">",
 			"=",
@@ -46,13 +46,13 @@ namespace OpenDatabase
 			this.ComparisionOperator = comparisonOp;
 			this.Left = left;
 			this.Right = right;
-			this.OperatorChar = OperatorChars[(int)this.ComparisionOperator];
+			this.OperatorChar = ComparisonPair<T>.OperatorChars[(int)this.ComparisionOperator];
 		}
 	}
 
 	public class KeyComparisonPair
 	{
-		protected string[] OperatorChars = new string[] {
+		protected static string[] OperatorChars = new string[] {
 			"<",
 			">",
 			"=",
@@ -80,7 +80,7 @@ namespace OpenDatabase
 			this.ComparisionOperator = comparisonOp;
 			this.Key = key;
 			this.Value = value;
-			this.OperatorChar = OperatorChars[(int)this.ComparisionOperator];
+			this.OperatorChar = KeyComparisonPair.OperatorChars[(int)this.ComparisionOperator];
 		}
 	}
 	
@@ -238,7 +238,6 @@ namespace OpenDatabase
 					 else
 						 altered += converted[x];
 
-				 Console.WriteLine($"Altered: {altered}");
 				 
 				 valueString = $"\'{altered}\'";
 			 }

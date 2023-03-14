@@ -56,7 +56,7 @@ namespace OpenDatabaseAPI
             
             try
             {
-                Console.WriteLine($"Rows:{reader.Rows}");
+                // Console.WriteLine($"Rows:{reader.Rows}");
                 while (reader.Read())
                 {
                     int fieldCount = reader.FieldCount;
@@ -167,7 +167,7 @@ namespace OpenDatabaseAPI
             {
                 string query;
                 this.ExecuteQuery(query = QueryBuilder.GetInsertQuery(table, record)); 
-                Console.WriteLine(query);
+                // Console.WriteLine(query);
             }
             catch (Exception e)
             {
@@ -184,7 +184,7 @@ namespace OpenDatabaseAPI
             {
                 string query;
                 this.ExecuteQuery(query = QueryBuilder.GetInsertQuery(table, record, specify)); 
-                Console.WriteLine(query);
+                // Console.WriteLine(query);
             }
             catch (Exception e)
             {
