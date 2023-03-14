@@ -1,6 +1,7 @@
 using System; 
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.Versioning;
 using System.Security.AccessControl;
@@ -296,13 +297,20 @@ namespace CourseDB
 
             Record[] records = null;
             Course[] courses = null;
+          
             
             foreach (string key in queryHash.Keys)
                 if (queryHash[key] != null) 
                     condition.And(new KeyComparisonPair(key, queryHash[key], Operator.Equal));
-
+            
+            Stopwatch watch = Stopwatch.StartNew();
+            watch.Start();
             records = this.Database.FetchQueryData($"SELECT * FROM Courses WHERE {condition.ToString()}", "Courses");
-           
+
+            watch.Stop();
+            
+            Console.WriteLine($"Elapsed: {watch.ElapsedMilliseconds}");
+            
             if (records.Length > 0)
             {
                 courses = new Course[records.Length];
