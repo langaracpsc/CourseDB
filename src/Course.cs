@@ -310,7 +310,7 @@ namespace CourseDB
 
             watch.Stop();
             
-            Console.WriteLine($"Elapsed: {JsonConvert.SerializeObject(watch.Elapsed)}");
+            Console.WriteLine($"Elasped assert: {watch.Elapsed.Seconds}:{watch.Elapsed.Milliseconds}:{watch.Elapsed.Microseconds}");
             
             if (records.Length > 0)
             {
