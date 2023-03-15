@@ -310,7 +310,7 @@ namespace CourseDB
 
             watch.Stop();
             
-            Console.WriteLine($"Elasped assert: {watch.Elapsed.Seconds}:{watch.Elapsed.Milliseconds}:{watch.Elapsed.Microseconds}");
+            Console.WriteLine($"Elasped assert: {watch.Elapsed.Seconds}:{watch.Elapsed.Milliseconds}");
             
             if (records.Length > 0)
             {
