@@ -305,11 +305,12 @@ namespace CourseDB
             
             Stopwatch watch = Stopwatch.StartNew();
             watch.Start();
+            
             records = this.Database.FetchQueryData($"SELECT * FROM Courses WHERE {condition.ToString()}", "Courses");
 
             watch.Stop();
             
-            Console.WriteLine($"Elapsed: {watch.ElapsedMilliseconds}");
+            Console.WriteLine($"Elapsed: {JsonConvert.SerializeObject(watch.Elapsed)}");
             
             if (records.Length > 0)
             {
