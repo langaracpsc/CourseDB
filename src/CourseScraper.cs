@@ -20,6 +20,8 @@ namespace CourseDB
 
         public string BaseURL;
 
+        protected Term _CourseTerm;
+        
         public Term CourseTerm;
         
         public Dictionary<string, DateTime> LastSync;
@@ -30,7 +32,7 @@ namespace CourseDB
 
         public bool IsRunning;
 
-        protected void SetTerm(Term term)
+        public void SetTerm(Term term)
         {
             this.CourseTerm = term;
 
@@ -138,9 +140,11 @@ namespace CourseDB
             Double.TryParse(splitArray[8], out credits);
 
             Course retCourse = new Course();
-
-                if (ints[4] > 5000) // inconsistent record exception
+    
+            
+                if (ints[4] > 10000) // inconsistent record exception
                 {
+                Console.WriteLine($"fees: {fees}");
                     retCourse = new Course(this.CourseTerm.ToString(),
                         ints[1],
                         ints[2],
@@ -160,6 +164,10 @@ namespace CourseDB
                         splitArray[18]
                     );
                 }
+                // else if (ints.Count < 7)
+                // {
+                //     
+                // }
                 else // normal behavior
                 {
                     retCourse = new Course(this.CourseTerm.ToString(), ints[0],
