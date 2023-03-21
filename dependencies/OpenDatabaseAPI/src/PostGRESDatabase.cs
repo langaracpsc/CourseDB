@@ -44,6 +44,7 @@ namespace OpenDatabaseAPI
         } 
         /// <summary>
         /// Extracts the records from the reader.
+        
         /// </summary>
         /// <param name="reader"></param>
         /// <param name="fields"></param>

@@ -142,9 +142,9 @@ namespace CourseDB
             Course retCourse = new Course();
     
             
-                if (ints[4] > 10000) // inconsistent record exception
+                if (ints[4] > 5000) // inconsistent record exception
                 {
-                Console.WriteLine($"fees: {fees}");
+                    Console.WriteLine($"if");
                     retCourse = new Course(this.CourseTerm.ToString(),
                         ints[1],
                         ints[2],
@@ -170,6 +170,7 @@ namespace CourseDB
                 // }
                 else // normal behavior
                 {
+                    Console.WriteLine($"else");
                     retCourse = new Course(this.CourseTerm.ToString(), ints[0],
                         ints[1],
                         ints[3],
