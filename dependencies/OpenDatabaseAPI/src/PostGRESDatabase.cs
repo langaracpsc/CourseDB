@@ -185,7 +185,7 @@ namespace OpenDatabaseAPI
             {
                 string query;
                 this.ExecuteQuery(query = QueryBuilder.GetInsertQuery(table, record, specify)); 
-                // Console.WriteLine(query);
+                Console.WriteLine(query);
             }
             catch (Exception e)
             {

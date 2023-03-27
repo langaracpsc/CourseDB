@@ -14,8 +14,12 @@ namespace CourseDB
     {
         // static void Main(string[] args)
         // {
-        //     CourseScraper scraper = new CourseScraper(Term.GetCurrent(),
+        //     CourseScraper scraper = new CourseScraper(Term.FromTermString(args[0]),
         //         DatabaseConfiguration.LoadFromFile("DatabaseConfig.json"));
+        //
+        //
+        //     scraper.GetCourseList();
+        //     scraper.SyncDB();
         //
         //     //scraper.CourseTerm = Term.FromTermString(args[0]);
         //
@@ -23,13 +27,11 @@ namespace CourseDB
         //     //
         //     // Console.WriteLine(JsonConvert.SerializeObject(courses[1].Schedule)); 
         //     //
-        //     //
-        //     //
         //     // Console.WriteLine(scraper.Manager.CourseExists(courses[1]));//scraper.Manager.AddCourse(courses[x], false);
         //
         //     // scraper.CourseTerm = Term.FromTermString("202320");
         //
-        //     scraper.SetTerm(Term.FromTermString(args[0]));
+        //     //      scraper.SetTerm(Term.FromTermString(args[0]));
         // } 
     } 
 }

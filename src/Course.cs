@@ -115,7 +115,7 @@ namespace CourseDB
                     this.Seats == course.Seats &&
                     this.Waitlist == course.Waitlist &&
                     this.CRN == course.Waitlist &&
-                    this.Location == course.Location &&
+                        this.Location == course.Location &&
                     this.Subject == course.Subject &&
                     this.Section == course.Section &&
                     this.Credits == course.Credits &&
@@ -220,8 +220,16 @@ namespace CourseDB
             for (int x = 0; x < this.Courses.Count; x++)
                 try
                 {
-                    if (!this.CourseExists(this.Courses[x]))
-                        this.Database.InsertRecord(this.Courses[x].ToRecord(), "Courses", true);
+                    bool exists;
+
+                    if (!(exists = this.CourseExists(this.Courses[x])))
+                    {
+                        Record record;
+                        Console.WriteLine($"{x} Exists: {exists}\n{JsonConvert.SerializeObject(this.Courses[x])}");
+                        this.Database.InsertRecord(record = this.Courses[x].ToRecord(), "Courses", true);
+                        Console.WriteLine(JsonConvert.SerializeObject(record));
+                        Console.WriteLine();
+                    }
                 }
                 catch (Exception e)
                 {

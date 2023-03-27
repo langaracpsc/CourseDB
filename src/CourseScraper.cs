@@ -140,11 +140,44 @@ namespace CourseDB
             Double.TryParse(splitArray[8], out credits);
 
             Course retCourse = new Course();
-    
-            
-                if (ints[4] > 5000) // inconsistent record exception
+
+
+            try
+            {
+                if (splitArray[17].Length > 10)
+                {
+                    PrintArray(splitArray);
+                    throw new Exception();
+                }
+
+                if (ints[4] > 5000 && ints.Count < 7) // inconsistent record exception
                 {
                     Console.WriteLine($"if");
+                    retCourse = new Course(this.CourseTerm.ToString(),
+                        ints[0],
+                        ints[1],
+                        ints[3],
+                        (splitArray[17] == " ") ? "TBA" : splitArray[17],
+                        splitArray[5],
+                        ints[4],
+                        splitArray[7],
+                        credits,
+                        splitArray[9],
+                        fees,
+                        ints[5],
+                        splitArray[12],
+                        Tools.GetDaysFromScheduleString(splitArray[13]),
+                        timeRange[0],
+                        timeRange[1],
+                        splitArray[18]
+                    );
+                }
+                
+                else if (ints[4] > 5000) // inconsistent record exception
+                {
+                    PrintArray(splitArray);
+                   
+                    
                     retCourse = new Course(this.CourseTerm.ToString(),
                         ints[1],
                         ints[2],
@@ -164,10 +197,6 @@ namespace CourseDB
                         splitArray[18]
                     );
                 }
-                // else if (ints.Count < 7)
-                // {
-                //     
-                // }
                 else // normal behavior
                 {
                     Console.WriteLine($"else");
@@ -189,8 +218,14 @@ namespace CourseDB
                         splitArray[18]
                     );
                 }
-
-
+            }
+            catch (ArgumentOutOfRangeException e)
+            {
+                PrintArray(splitArray);
+                PrintArray<int>(ints.ToArray());
+                throw new Exception();
+            }
+           
             return retCourse;
         }
         
@@ -237,6 +272,7 @@ namespace CourseDB
                 this.Manager.UpdateDB();
             
             this.LastSync[this.CourseTerm.ToString()] = DateTime.Now;
+            Console.WriteLine($"Course Length: {courses.Length}; Term: {this.CourseTerm.ToString()}");
         }
 
         public async Task Run()
@@ -244,7 +280,7 @@ namespace CourseDB
             this.IsRunning = true;
             await Task.Run(()=> {
                 while (this.IsRunning)
-                {
+                { 
                     if (this.LastSync[this.CourseTerm.ToString()].CompareTo(DateTime.Now) <= 0)
                         this.SyncDB();
                 }

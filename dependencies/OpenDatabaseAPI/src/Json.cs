@@ -37,7 +37,7 @@ namespace OpenDatabase.Json
 		/// <summary>
 		/// Converts the provided Json 
 		/// </summary>
-		/// <param name="jsonString"> JSON string. </param>
+		/// <param name="jsonString"> JSON string. </param>	
 		/// <returns> JSON string deserialized into a Hashtable. </returns>
 		public static Hashtable JsonToHashtable(string jsonString)
 		{
