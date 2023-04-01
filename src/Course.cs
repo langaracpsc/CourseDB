@@ -12,6 +12,7 @@ using OpenDatabaseAPI;
 using Newtonsoft.Json;
 using OpenQA.Selenium.DevTools.V106.BackgroundService;
 using OpenQA.Selenium.DevTools.V106.Overlay;
+using OpenQA.Selenium.DevTools.V107.IndexedDB;
 using OpenQA.Selenium.DevTools.V108.Audits;
 using RecordingStateChangedEventArgs = OpenQA.Selenium.DevTools.V107.BackgroundService.RecordingStateChangedEventArgs;
 using SetShowFPSCounterCommandResponse = OpenQA.Selenium.DevTools.V108.Overlay.SetShowFPSCounterCommandResponse;
@@ -331,17 +332,35 @@ namespace CourseDB
             return courses;
         }
 
-        // public void CacheCoursesByTerm(Term term)
-        // {
-        //     Record[] records = this.Database.FetchQueryData($"SELECT * FROM Courses WHERE Term='{term.ToString()}'", "Courses");
-        //
-        //     Course course;
-        //     
-        //     for (int x = 0; x < records.Length; x++)
-        //         if (this.SearchCourse((course = new Course(records[x])), this.Courses))
-        //             
-        // }
+        public Course[] GetCoursesByQueryMatch(Dictionary<string, string> queryMap)
+        {
+            Course[] courses = null;
+            
+            Record[] records = null;
 
+            KeyPairCondition condition = null;
+            
+            try
+            {
+                condition = new KeyPairCondition();
+
+                foreach (string key in queryMap.Keys)
+                    condition.And(new KeyComparisonPair(key, queryMap[key], Operator.Like));
+                
+                if ((records = this.Database.FetchQueryData($"SELECT * FROM Courses WHERE {condition.ToString()}", "Courses")).Length > 0)
+                {
+                    courses = new Course[records.Length];
+                    for (int x = 0; x < records.Length; x++)
+                        courses[x] = new Course(records[x]);
+                } 
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.StackTrace);
+            }
+
+            return courses;
+        }
 
         public CourseManager(DatabaseConfiguration databaseConfig)
         {
