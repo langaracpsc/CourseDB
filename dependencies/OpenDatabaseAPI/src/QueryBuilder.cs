@@ -13,7 +13,8 @@ namespace OpenDatabase
 		More,
 		Equal,
 		LessEqual,
-		MoreEqual
+		MoreEqual,
+		Like
 	}
 
 	public class ComparisonPair<T>
@@ -23,7 +24,8 @@ namespace OpenDatabase
 			">",
 			"=",
 			"<=",
-			">"	
+			">",
+			"LIKE"
 		};
 		
 		T Left,
@@ -36,8 +38,7 @@ namespace OpenDatabase
 		public override string ToString()
 		{
 			string quote = (typeof(T) == typeof(string)) ? "\'" : null;
-				
-				
+		
 			return $"{quote}{Convert.ToString(this.Left)}{quote}{this.OperatorChar}{quote}{Convert.ToString(this.Right)}{quote}";
 		}
 
@@ -57,7 +58,8 @@ namespace OpenDatabase
 			">",
 			"=",
 			"<=",
-			">"	
+			">",
+			"LIKE"
 		};
 
 		public string Key;
@@ -71,7 +73,10 @@ namespace OpenDatabase
 		public override string ToString()
 		{
 			string quote = (this.Value.GetType() == typeof(string)) ? "\'" : null;
-				
+
+			if ((this.Value is int || this.Value is double) && (ComparisionOperator == Operator.Like))
+				return $"{$"CAST({this.Key} as TEXT)"} {this.OperatorChar} {quote}{this.Value}{quote}";
+			
 			return $"{this.Key} {this.OperatorChar} {quote}{this.Value}{quote}";
 		}
 

@@ -275,7 +275,7 @@ namespace CourseDB
 
         public void CacheCourses(Term term)
         {
-            OpenDatabase.Record[] courseRecords = this.Database.FetchQueryData($"SELECT * FROM Courses WHERE Term={term.ToString()}", "Courses");
+            OpenDatabase.Record[] courseRecords = this.Database.FetchQueryData($"SELECT * FROM Courses WHERE Term=\'{term.ToString()}\'", "Courses");
 
             for (int x = 0; x < courseRecords.Length; x++)
                 this.Courses.Add(new Course(courseRecords[x]));
@@ -330,6 +330,17 @@ namespace CourseDB
 
             return courses;
         }
+
+        // public void CacheCoursesByTerm(Term term)
+        // {
+        //     Record[] records = this.Database.FetchQueryData($"SELECT * FROM Courses WHERE Term='{term.ToString()}'", "Courses");
+        //
+        //     Course course;
+        //     
+        //     for (int x = 0; x < records.Length; x++)
+        //         if (this.SearchCourse((course = new Course(records[x])), this.Courses))
+        //             
+        // }
 
 
         public CourseManager(DatabaseConfiguration databaseConfig)
