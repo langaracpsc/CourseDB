@@ -343,14 +343,15 @@ namespace CourseDB
             try
             {
                 condition = new KeyPairCondition();
-                string query = $"SELECT * FROM Courses WHERE {condition.ToString()}";
-                Console.WriteLine(query);
+
+                string query = null;
                 
                 foreach (string key in queryMap.Keys)
                     condition.And(new KeyComparisonPair(key, queryMap[key], Operator.Like));
                 
-                if ((records = this.Database.FetchQueryData(query, "Courses")).Length > 0)
+                if ((records = this.Database.FetchQueryData(query = $"SELECT * FROM Courses WHERE {condition.ToString()}", "Courses")).Length > 0)
                 {
+                    Console.WriteLine(query);
                     courses = new Course[records.Length];
                     for (int x = 0; x < records.Length; x++)
                         courses[x] = new Course(records[x]);

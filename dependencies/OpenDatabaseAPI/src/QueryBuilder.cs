@@ -72,11 +72,10 @@ namespace OpenDatabase
 		
 		public override string ToString()
 		{
-			string quote = (this.Value.GetType() == typeof(string)) ? "\'" : null;
+			string? quote = (this.Value is string) ? "\'" : null;
 
 			if ((this.Value is int || this.Value is double) && (ComparisionOperator == Operator.Like))
 			{
-				Console.WriteLine($"{$"CAST({this.Key} as TEXT)"} {this.OperatorChar} {quote}{this.Value}{quote}");
 				return $"{$"CAST({this.Key} as TEXT)"} {this.OperatorChar} \'{this.Value}{quote}%\'";
 			}
 
