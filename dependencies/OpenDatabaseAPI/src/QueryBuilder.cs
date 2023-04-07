@@ -74,7 +74,7 @@ namespace OpenDatabase
 		{
 			string? quote = (this.Value is string) ? "\'" : null;
 
-			if ((this.Value is int || this.Value is double) && (ComparisionOperator == Operator.Like))
+			if ((QueryBuilder.IsNumeric(this.Value)) && (ComparisionOperator == Operator.Like))
 			{
 				return $"{$"CAST({this.Key} as TEXT)"} {this.OperatorChar} \'{this.Value}{quote}%\'";
 			}
@@ -217,6 +217,26 @@ namespace OpenDatabase
 			"WHERE"
 		};
 
+		public static bool IsNumeric(object obj)
+		{
+			switch (Type.GetTypeCode(obj.GetType()))
+			{
+				case TypeCode.Byte:
+				case TypeCode.SByte:
+				case TypeCode.UInt16:
+				case TypeCode.UInt32:
+				case TypeCode.UInt64:
+				case TypeCode.Int16:
+				case TypeCode.Int32:
+				case TypeCode.Int64:
+				case TypeCode.Decimal:
+				case TypeCode.Double:
+				case TypeCode.Single:
+					return true;
+			}
+			return false;
+		}
+
 		public static string GetValueString<T>(T value)
 		{
 			string valueString = null;
@@ -229,10 +249,8 @@ namespace OpenDatabase
 			 if (valueType == typeof(int))
 				valueString = Convert.ToString(value);
 			 else if (valueType == typeof(char))
-			 {
 				 valueString = $"\'{Convert.ToString(value)}\'";
-			 }
-			 
+			
 			 else if (valueType == typeof(string))
 			 {
 				 string converted = Convert.ToString(value), altered = null;
