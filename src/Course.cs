@@ -332,7 +332,7 @@ namespace CourseDB
             return courses;
         }
 
-        public Course[] GetCoursesByQueryMatch(Dictionary<string, string> queryMap)
+        public Course[] GetCoursesByQueryMatch(Dictionary<string, object> queryMap)
         {
             Course[] courses = null;
             
