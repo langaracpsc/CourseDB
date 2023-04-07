@@ -314,6 +314,8 @@ namespace CourseDB
             
             Stopwatch watch = Stopwatch.StartNew();
             watch.Start();
+
+            Console.WriteLine($"SELECT * FROM Courses WHERE {condition.ToString()}");
             
             records = this.Database.FetchQueryData($"SELECT * FROM Courses WHERE {condition.ToString()}", "Courses");
 
@@ -348,6 +350,8 @@ namespace CourseDB
                 
                 foreach (string key in queryMap.Keys)
                     condition.And(new KeyComparisonPair(key, queryMap[key], Operator.Like));
+
+                Console.WriteLine($"SELECT * FROM Courses WHERE {condition.ToString()}");
                 
                 if ((records = this.Database.FetchQueryData(query = $"SELECT * FROM Courses WHERE {condition.ToString()}", "Courses")).Length > 0)
                 {
